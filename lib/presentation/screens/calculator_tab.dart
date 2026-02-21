@@ -41,6 +41,8 @@ class CalculatorTab extends StatelessWidget {
                   loanAmount: calc.loanAmount,
                   stampDuty: calc.stampDuty,
                   ltv: calc.ltv,
+                  region: scenario.region,
+                  onRegionChanged: (v) => scenario.updateRegion(v!),
                 ),
 
                 const SizedBox(height: 14),
@@ -65,14 +67,18 @@ class CalculatorTab extends StatelessWidget {
                 ControlCard(
                   title: 'Deposit',
                   subtitle: 'Affects your LTV ratio',
-                  value: '${scenario.depositPercentage.toStringAsFixed(0)}%',
-                  sliderValue: scenario.depositPercentage,
-                  min: 5,
-                  max: 50,
-                  divisions: 45,
-                  minLabel: '5%',
-                  maxLabel: '50%',
-                  onChanged: scenario.updateDepositPercentage,
+                  value: '£${scenario.deposit.toStringAsFixed(0)}',
+                  sliderValue: scenario.deposit.clamp(
+                    scenario.propertyPrice * 0.05,
+                    scenario.propertyPrice * 0.95,
+                  ),
+                  min: scenario.propertyPrice * 0.05,
+                  max: scenario.propertyPrice * 0.95,
+                  minLabel:
+                      '£${(scenario.propertyPrice * 0.05 / 1000).toStringAsFixed(0)}k',
+                  maxLabel:
+                      '£${(scenario.propertyPrice * 0.95 / 1000).toStringAsFixed(0)}k',
+                  onChanged: scenario.updateDepositAmount,
                 ),
 
                 const SizedBox(height: 10),
@@ -105,14 +111,6 @@ class CalculatorTab extends StatelessWidget {
                   minLabel: '5 years',
                   maxLabel: '35 years',
                   onChanged: (v) => scenario.updateTermYears(v.toInt()),
-                ),
-
-                const SizedBox(height: 10),
-
-                // Region Selector
-                PremiumRegionSelector(
-                  value: scenario.region,
-                  onChanged: (v) => scenario.updateRegion(v!),
                 ),
 
                 const SizedBox(height: 14),
@@ -151,6 +149,74 @@ class CalculatorTab extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                const SizedBox(height: 10),
+
+                // First-Time Buyer Toggle
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 20,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppTheme.accentGreen.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.home_rounded,
+                          size: 18,
+                          color: AppTheme.accentGreen,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'First-Time Buyer',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              scenario.isFirstTimeBuyer
+                                  ? 'Stamp duty relief applied'
+                                  : 'Standard stamp duty rates',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: scenario.isFirstTimeBuyer,
+                        activeColor: AppTheme.accentGreen,
+                        onChanged: scenario.updateIsFirstTimeBuyer,
+                      ),
+                    ],
+                  ),
+                ),
 
                 const SizedBox(height: 20),
               ],

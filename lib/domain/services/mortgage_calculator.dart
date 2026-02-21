@@ -52,37 +52,51 @@ class MortgageCalculator {
   }
 
   /// England and Northern Ireland Stamp Duty Land Tax (SDLT)
+  /// Standard rates effective April 2025 (temporary £250k nil band ended).
   static double _calculateEnglandNIStampDuty(
     double price,
     bool isFirstTimeBuyer,
   ) {
     double duty = 0;
 
-    if (isFirstTimeBuyer && price <= 625000) {
-      // First-time buyer relief
-      if (price <= 425000) {
-        return 0;
-      } else {
-        duty += (price - 425000) * 0.05;
+    if (isFirstTimeBuyer && price <= 500000) {
+      // First-time buyer relief (April 2025 onward):
+      //   0% up to £300,000 | 5% on £300,001–£500,000
+      //   If price > £500,000 standard rates apply (fall through below)
+      if (price > 300000) {
+        duty += (price - 300000) * 0.05;
       }
-    } else {
-      // Standard rates
-      if (price > 250000) {
-        duty += (min(price, 925000) - 250000) * 0.05;
-      }
-      if (price > 925000) {
-        duty += (min(price, 1500000) - 925000) * 0.10;
-      }
-      if (price > 1500000) {
-        duty += (price - 1500000) * 0.12;
-      }
+      return duty;
+    }
+
+    // Standard residential rates
+    //   0% up to £125,000
+    //   2% on £125,001–£250,000
+    //   5% on £250,001–£925,000
+    //  10% on £925,001–£1,500,000
+    //  12% over £1,500,000
+    if (price > 125000) {
+      duty += (min(price, 250000) - 125000) * 0.02;
+    }
+    if (price > 250000) {
+      duty += (min(price, 925000) - 250000) * 0.05;
+    }
+    if (price > 925000) {
+      duty += (min(price, 1500000) - 925000) * 0.10;
+    }
+    if (price > 1500000) {
+      duty += (price - 1500000) * 0.12;
     }
 
     return duty;
   }
 
   /// Scotland Land and Buildings Transaction Tax (LBTT)
+  /// First-time buyer relief: full LBTT exemption when price ≤ £175,000.
   static double _calculateScotlandLBTT(double price, bool isFirstTimeBuyer) {
+    // Full relief for first-time buyers purchasing at or below £175,000
+    if (isFirstTimeBuyer && price <= 175000) return 0;
+
     double duty = 0;
 
     if (price > 145000) {
@@ -102,6 +116,13 @@ class MortgageCalculator {
   }
 
   /// Wales Land Transaction Tax (LTT)
+  /// Current residential rates (effective October 2022).
+  /// Wales has no first-time buyer relief.
+  ///   0%   up to £225,000
+  ///   6%   £225,001–£400,000
+  ///   7.5% £400,001–£750,000
+  ///  10%   £750,001–£1,500,000
+  ///  12%   over £1,500,000
   static double _calculateWalesLTT(double price, bool isFirstTimeBuyer) {
     double duty = 0;
 
@@ -186,16 +207,17 @@ class MortgageCalculator {
         payment += lumpSumOverpay;
       }
 
-      final principal = payment - interest;
-      balance -= principal;
-
-      // Avoid negative balance due to rounding
-      if (balance < 0) balance = 0;
+      // Cap principal at the remaining balance so the final payment is
+      // never larger than what is actually owed.
+      final rawPrincipal = payment - interest;
+      final principal = rawPrincipal.clamp(0.0, balance);
+      final actualPayment = principal + interest;
+      balance -= principal; // balance is now exactly 0 or positive
 
       schedule.add(
         AmortisationRow(
           month: month,
-          payment: payment,
+          payment: actualPayment,
           interest: interest,
           principal: principal,
           balance: balance,

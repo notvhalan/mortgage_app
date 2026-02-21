@@ -41,35 +41,69 @@ class _MortgageGraphState extends State<MortgageGraph> {
   }
 
   Widget _buildToggle() {
+    const tabs = [
+      (icon: Icons.waterfall_chart_rounded, label: 'Balance'),
+      (icon: Icons.stacked_line_chart_rounded, label: 'Principal vs Interest'),
+    ];
+
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(12),
+        color: AppTheme.backgroundWhite,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       padding: const EdgeInsets.all(4),
-      child: SegmentedButton<int>(
-        showSelectedIcon: false,
-        segments: const [
-          ButtonSegment(value: 0, label: Text('Balance')),
-          ButtonSegment(value: 1, label: Text('Principal vs Interest')),
-        ],
-        selected: {_selectedView},
-        onSelectionChanged: (s) => setState(() => _selectedView = s.first),
-        style: ButtonStyle(
-          visualDensity: VisualDensity.compact,
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return AppTheme.primaryBlue.withValues(alpha: 0.12);
-            }
-            return Colors.transparent;
-          }),
-          foregroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return AppTheme.primaryBlue;
-            }
-            return AppTheme.textSecondary;
-          }),
-        ),
+      child: Row(
+        children: List.generate(tabs.length, (i) {
+          final selected = _selectedView == i;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedView = i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                decoration: BoxDecoration(
+                  gradient: selected
+                      ? const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF9FE6DE), Color(0xFF0D9488)],
+                        )
+                      : null,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      tabs[i].icon,
+                      size: 14,
+                      color: selected ? Colors.white : AppTheme.textTertiary,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      tabs[i].label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: selected ? Colors.white : AppTheme.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -94,7 +128,7 @@ class _MortgageGraphState extends State<MortgageGraph> {
         lineTouchData: LineTouchData(
           handleBuiltInTouches: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (_) => AppTheme.primaryBlue,
+            getTooltipColor: (_) => const Color(0xFF0D9488),
             tooltipRoundedRadius: 10,
             tooltipPadding: const EdgeInsets.symmetric(
               horizontal: 12,
@@ -181,15 +215,17 @@ class _MortgageGraphState extends State<MortgageGraph> {
             spots: data,
             isCurved: true,
             curveSmoothness: 0.3,
-            color: AppTheme.primaryBlue,
+            gradient: const LinearGradient(
+              colors: [Color(0xFF9FE6DE), Color(0xFF3FC7D6)],
+            ),
             barWidth: 2.5,
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primaryBlue.withValues(alpha: 0.22),
-                  AppTheme.primaryBlue.withValues(alpha: 0.0),
+                  const Color(0xFF3FC7D6).withValues(alpha: 0.20),
+                  const Color(0xFF3FC7D6).withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -202,20 +238,30 @@ class _MortgageGraphState extends State<MortgageGraph> {
   }
 
   Widget _buildStackedChart() {
-    final principalData = widget.schedule
-        .where((r) => r.month % 12 == 0)
-        .map((r) => FlSpot(r.month / 12, r.principal))
-        .toList();
-    final interestData = widget.schedule
-        .where((r) => r.month % 12 == 0)
-        .map((r) => FlSpot(r.month / 12, r.interest))
-        .toList();
+    // Aggregate per-year totals so the chart correctly shows
+    // "principal paid this year" vs "interest paid this year".
+    // Plotting a single December month (the old approach) was misleading.
+    final totalYears = (widget.schedule.length / 12).ceil();
+    final principalData = <FlSpot>[];
+    final interestData = <FlSpot>[];
+
+    for (int y = 1; y <= totalYears; y++) {
+      final start = (y - 1) * 12;
+      final end = (y * 12).clamp(0, widget.schedule.length);
+      double pSum = 0, iSum = 0;
+      for (int i = start; i < end; i++) {
+        pSum += widget.schedule[i].principal;
+        iSum += widget.schedule[i].interest;
+      }
+      principalData.add(FlSpot(y.toDouble(), pSum));
+      interestData.add(FlSpot(y.toDouble(), iSum));
+    }
 
     final allVals = [...principalData, ...interestData].map((s) => s.y);
     final maxY = allVals.isNotEmpty
         ? allVals.reduce((a, b) => a > b ? a : b)
-        : 2000.0;
-    final yInterval = maxY > 0 ? (maxY / 4).ceilToDouble() : 500.0;
+        : 20000.0;
+    final yInterval = maxY > 0 ? (maxY / 4).ceilToDouble() : 5000.0;
 
     return LineChart(
       LineChartData(
@@ -233,7 +279,7 @@ class _MortgageGraphState extends State<MortgageGraph> {
             getTooltipItems: (spots) => spots.map((spot) {
               final label = spot.barIndex == 0 ? 'Principal' : 'Interest';
               return LineTooltipItem(
-                '$label\n£${spot.y.toStringAsFixed(0)}/mo',
+                '$label (Yr ${spot.x.toInt()})\n\u00a3${(spot.y / 1000).toStringAsFixed(1)}k/yr',
                 const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -265,7 +311,7 @@ class _MortgageGraphState extends State<MortgageGraph> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
-                    '£${value.toStringAsFixed(0)}',
+                    '£${(value / 1000).toStringAsFixed(0)}k',
                     style: TextStyle(
                       fontSize: 10,
                       color: AppTheme.textTertiary,
@@ -312,15 +358,17 @@ class _MortgageGraphState extends State<MortgageGraph> {
             spots: principalData,
             isCurved: true,
             curveSmoothness: 0.3,
-            color: AppTheme.graphPrincipal,
+            gradient: const LinearGradient(
+              colors: [Color(0xFF9FE6DE), Color(0xFF0D9488)],
+            ),
             barWidth: 2.5,
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.graphPrincipal.withValues(alpha: 0.22),
-                  AppTheme.graphPrincipal.withValues(alpha: 0.0),
+                  const Color(0xFF0D9488).withValues(alpha: 0.18),
+                  const Color(0xFF0D9488).withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -338,7 +386,7 @@ class _MortgageGraphState extends State<MortgageGraph> {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.graphInterest.withValues(alpha: 0.22),
+                  AppTheme.graphInterest.withValues(alpha: 0.18),
                   AppTheme.graphInterest.withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
@@ -408,33 +456,75 @@ class _AmortisationTableState extends State<AmortisationTable> {
       children: [
         // Toggle selector
         Container(
+          margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            color: AppTheme.surfaceLight,
-            borderRadius: BorderRadius.circular(12),
+            color: AppTheme.backgroundWhite,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
           padding: const EdgeInsets.all(4),
-          margin: const EdgeInsets.only(bottom: 16),
-          child: SegmentedButton<bool>(
-            showSelectedIcon: false,
-            segments: const [
-              ButtonSegment(value: true, label: Text('Monthly')),
-              ButtonSegment(value: false, label: Text('Yearly')),
+          child: Row(
+            children: [
+              for (final tab in [
+                (value: true, icon: Icons.view_list_rounded, label: 'Monthly'),
+                (
+                  value: false,
+                  icon: Icons.calendar_month_rounded,
+                  label: 'Yearly',
+                ),
+              ])
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => showMonthly = tab.value),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        gradient: showMonthly == tab.value
+                            ? const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [Color(0xFF9FE6DE), Color(0xFF0D9488)],
+                              )
+                            : null,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            tab.icon,
+                            size: 14,
+                            color: showMonthly == tab.value
+                                ? Colors.white
+                                : AppTheme.textTertiary,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            tab.label,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: showMonthly == tab.value
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: showMonthly == tab.value
+                                  ? Colors.white
+                                  : AppTheme.textTertiary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
             ],
-            selected: {showMonthly},
-            onSelectionChanged: (Set<bool> newSelection) {
-              setState(() {
-                showMonthly = newSelection.first;
-              });
-            },
-            style: ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              backgroundColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return AppTheme.primaryBlue.withValues(alpha: 0.12);
-                }
-                return Colors.transparent;
-              }),
-            ),
           ),
         ),
 
@@ -622,16 +712,22 @@ class _AmortisationTableState extends State<AmortisationTable> {
 
   List<AmortisationRow> _getYearlySummary() {
     final List<AmortisationRow> yearly = [];
+    if (widget.schedule.isEmpty) return yearly;
 
-    for (int year = 1; year <= widget.schedule.length ~/ 12; year++) {
+    // Use ceil so a partial final year (early payoff) is always included.
+    final totalYears = (widget.schedule.length / 12).ceil();
+
+    for (int year = 1; year <= totalYears; year++) {
       final startIdx = (year - 1) * 12;
-      final endIdx = year * 12;
+      // Clamp endIdx so balance access is always in-bounds when the mortgage
+      // ends before the end of the year (e.g. due to overpayments).
+      final endIdx = (year * 12).clamp(0, widget.schedule.length);
 
       double totalPayment = 0;
       double totalInterest = 0;
       double totalPrincipal = 0;
 
-      for (int i = startIdx; i < endIdx && i < widget.schedule.length; i++) {
+      for (int i = startIdx; i < endIdx; i++) {
         totalPayment += widget.schedule[i].payment;
         totalInterest += widget.schedule[i].interest;
         totalPrincipal += widget.schedule[i].principal;

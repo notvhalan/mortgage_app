@@ -21,6 +21,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
   double _investmentReturn = 5.0;
   int _horizonYears = 10;
   double _buyingCosts = 3000;
+  int _chartMode = 0; // 0 = cumulative cost, 1 = net position
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,6 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
           listenable: widget.scenario,
           builder: (context, _) {
             final calc = widget.scenario.calculation;
-
             if (calc == null) {
               return const Center(child: CircularProgressIndicator());
             }
@@ -46,6 +46,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
               stampDuty: calc.stampDuty,
               loanAmount: calc.loanAmount,
               mortgageTermYears: widget.scenario.termYears,
+              interestRate: widget.scenario.interestRate,
               housePriceGrowth: _housePriceGrowth,
               investmentReturn: _investmentReturn,
               buyingCosts: _buyingCosts,
@@ -56,384 +57,21 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
                 isBuyCheaper ? AppTheme.accentGreen : AppTheme.accentOrange;
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.balance_rounded,
-                          size: 22,
-                          color: AppTheme.primaryBlue,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Rent vs Buy',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            '$_horizonYears-year analysis',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // â”€â”€ Verdict card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          accentColor.withValues(alpha: 0.12),
-                          accentColor.withValues(alpha: 0.05),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: accentColor.withValues(alpha: 0.25),
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              isBuyCheaper
-                                  ? Icons.home_rounded
-                                  : Icons.apartment_rounded,
-                              color: accentColor,
-                              size: 22,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              isBuyCheaper
-                                  ? 'Buying is cheaper'
-                                  : 'Renting is cheaper',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: accentColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Â£${_fmt(results['difference'].abs())}',
-                          style: TextStyle(
-                            fontSize: 42,
-                            fontWeight: FontWeight.w800,
-                            color: accentColor,
-                            letterSpacing: -1,
-                          ),
-                        ),
-                        Text(
-                          'net difference over $_horizonYears years',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                        if (results['breakEvenYear'] != null) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  AppTheme.primaryBlue.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.timeline_rounded,
-                                  color: AppTheme.primaryBlue,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Buying breaks even at Year ${results['breakEvenYear']}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.primaryBlue,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-
+                  _buildHeader(),
+                  const SizedBox(height: 16),
+                  _buildVerdictBanner(results, isBuyCheaper, accentColor),
+                  const SizedBox(height: 12),
+                  _buildMetricsStrip(results),
                   const SizedBox(height: 14),
-
-                  // â”€â”€ Stat chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildStatChip(
-                          'Rent Cost',
-                          'Â£${_fmtK(results['totalRentCost'])}',
-                          AppTheme.accentOrange,
-                          Icons.key_rounded,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildStatChip(
-                          'Buy Cost',
-                          'Â£${_fmtK(results['totalBuyCost'])}',
-                          AppTheme.accentGreen,
-                          Icons.home_rounded,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildStatChip(
-                          'Future Value',
-                          'Â£${_fmtK(results['futurePropertyValue'])}',
-                          AppTheme.primaryBlue,
-                          Icons.trending_up_rounded,
-                        ),
-                      ),
-                    ],
-                  ),
-
+                  _buildChartCard(results),
                   const SizedBox(height: 14),
-
-                  // â”€â”€ Chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                  SurfaceCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Cumulative Cost',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'How costs accumulate over time',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          height: 220,
-                          child: _buildChart(results),
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildLegendChip(AppTheme.accentOrange, 'Renting'),
-                            const SizedBox(width: 24),
-                            _buildLegendChip(AppTheme.accentGreen, 'Buying'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
+                  _buildBreakdownCard(results),
                   const SizedBox(height: 14),
-
-                  // â”€â”€ Detailed breakdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                  SurfaceCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Detailed Breakdown',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildBreakdownRow(
-                          Icons.key_rounded,
-                          'Total Rent Cost',
-                          'Â£${_fmt(results['totalRentCost'])}',
-                          AppTheme.accentOrange,
-                        ),
-                        _buildDivider(),
-                        _buildBreakdownRow(
-                          Icons.home_rounded,
-                          'Total Buy Cost',
-                          'Â£${_fmt(results['totalBuyCost'])}',
-                          AppTheme.accentGreen,
-                        ),
-                        _buildDivider(),
-                        _buildBreakdownRow(
-                          Icons.show_chart_rounded,
-                          'Opportunity Cost',
-                          'Â£${_fmt(results['opportunityCost'])}',
-                          AppTheme.textSecondary,
-                        ),
-                        _buildDivider(),
-                        _buildBreakdownRow(
-                          Icons.trending_up_rounded,
-                          'Equity Gained',
-                          'Â£${_fmt(results['equityGained'])}',
-                          AppTheme.primaryBlue,
-                        ),
-                        _buildDivider(),
-                        _buildBreakdownRow(
-                          Icons.apartment_rounded,
-                          'Future Property Value',
-                          'Â£${_fmt(results['futurePropertyValue'])}',
-                          AppTheme.primaryBlue,
-                          bold: true,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // â”€â”€ Assumptions header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, bottom: 12),
-                    child: Row(
-                      children: const [
-                        Icon(
-                          Icons.tune_rounded,
-                          size: 18,
-                          color: AppTheme.textSecondary,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'Assumptions',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // â”€â”€ Sliders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                  SurfaceCard(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        _buildSlider(
-                          icon: Icons.key_rounded,
-                          label: 'Monthly Rent',
-                          value: _monthlyRent,
-                          min: 500,
-                          max: 5000,
-                          divisions: 90,
-                          valueFormatter: (v) => 'Â£${v.toStringAsFixed(0)}',
-                          onChanged: (v) => setState(() => _monthlyRent = v),
-                        ),
-                        _buildSliderDivider(),
-                        _buildSlider(
-                          icon: Icons.arrow_upward_rounded,
-                          label: 'Annual Rent Increase',
-                          value: _annualRentIncrease,
-                          min: 0,
-                          max: 10,
-                          divisions: 100,
-                          valueFormatter: (v) => '${v.toStringAsFixed(1)}%',
-                          onChanged: (v) =>
-                              setState(() => _annualRentIncrease = v),
-                        ),
-                        _buildSliderDivider(),
-                        _buildSlider(
-                          icon: Icons.home_work_rounded,
-                          label: 'House Price Growth',
-                          value: _housePriceGrowth,
-                          min: -5,
-                          max: 15,
-                          divisions: 100,
-                          valueFormatter: (v) => '${v.toStringAsFixed(1)}%',
-                          onChanged: (v) =>
-                              setState(() => _housePriceGrowth = v),
-                        ),
-                        _buildSliderDivider(),
-                        _buildSlider(
-                          icon: Icons.account_balance_rounded,
-                          label: 'Investment Return',
-                          value: _investmentReturn,
-                          min: 0,
-                          max: 15,
-                          divisions: 150,
-                          valueFormatter: (v) => '${v.toStringAsFixed(1)}%',
-                          onChanged: (v) =>
-                              setState(() => _investmentReturn = v),
-                        ),
-                        _buildSliderDivider(),
-                        _buildSlider(
-                          icon: Icons.calendar_today_rounded,
-                          label: 'Time Horizon',
-                          value: _horizonYears.toDouble(),
-                          min: 1,
-                          max: 30,
-                          divisions: 29,
-                          valueFormatter: (v) => '${v.toInt()} yrs',
-                          onChanged: (v) =>
-                              setState(() => _horizonYears = v.toInt()),
-                        ),
-                        _buildSliderDivider(),
-                        _buildSlider(
-                          icon: Icons.receipt_long_rounded,
-                          label: 'Buying Costs',
-                          value: _buyingCosts,
-                          min: 1000,
-                          max: 10000,
-                          divisions: 18,
-                          valueFormatter: (v) => 'Â£${v.toStringAsFixed(0)}',
-                          onChanged: (v) => setState(() => _buyingCosts = v),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
+                  _buildAssumptionsSection(),
                 ],
               ),
             );
@@ -443,43 +81,233 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Header 
 
-  String _fmt(double v) {
-    if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(2)}m';
-    if (v >= 1000) return '${(v / 1000).toStringAsFixed(0)}k';
-    return v.toStringAsFixed(0);
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.balance_rounded,
+            size: 22,
+            color: AppTheme.primaryBlue,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Rent vs Buy',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+                letterSpacing: -0.5,
+              ),
+            ),
+            Text(
+              '$_horizonYears-year analysis',
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
-  String _fmtK(double v) {
-    if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(1)}m';
-    if (v >= 1000) return '${(v / 1000).toStringAsFixed(0)}k';
-    return v.toStringAsFixed(0);
-  }
+  //  Verdict banner 
 
-  Widget _buildStatChip(
-    String label,
-    String value,
-    Color color,
-    IconData icon,
+  Widget _buildVerdictBanner(
+    Map<String, dynamic> results,
+    bool isBuyCheaper,
+    Color accentColor,
   ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            accentColor.withValues(alpha: 0.13),
+            accentColor.withValues(alpha: 0.04),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.22),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              isBuyCheaper ? Icons.home_rounded : Icons.apartment_rounded,
+              color: accentColor,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isBuyCheaper ? 'Buying is cheaper' : 'Renting is cheaper',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: accentColor,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'over $_horizonYears years',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '\u00a3${_fmtK(results['difference'].abs())}',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  color: accentColor,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              if (results['breakEvenYear'] != null)
+                Container(
+                  margin: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.timeline_rounded,
+                        color: AppTheme.primaryBlue,
+                        size: 12,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Break-even Yr ${results['breakEvenYear']}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryBlue,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  //  Metrics strip 
+
+  Widget _buildMetricsStrip(Map<String, dynamic> results) {
+    return Row(
+      children: [
+        Expanded(
+          child: _metricTile(
+            'Rent Total',
+            '\u00a3${_fmtK(results['totalRentCost'])}',
+            AppTheme.accentOrange,
+            Icons.key_rounded,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _metricTile(
+            'Buy Total',
+            '\u00a3${_fmtK(results['totalBuyCost'])}',
+            AppTheme.accentGreen,
+            Icons.home_rounded,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _metricTile(
+            'Property',
+            '\u00a3${_fmtK(results['futurePropertyValue'])}',
+            AppTheme.primaryBlue,
+            Icons.trending_up_rounded,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _metricTile(
+            'Equity',
+            '\u00a3${_fmtK(results['equityGained'])}',
+            AppTheme.accentIndigo,
+            Icons.account_balance_rounded,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _metricTile(String label, String value, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.07),
+        color: AppTheme.backgroundWhite,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.18), width: 1),
+        border: Border.all(color: AppTheme.borderLight, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(height: 6),
+          Icon(icon, size: 15, color: color),
+          const SizedBox(height: 5),
           Text(
             label,
             style: const TextStyle(
               fontSize: 10,
-              color: AppTheme.textSecondary,
+              color: AppTheme.textTertiary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -487,7 +315,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
           Text(
             value,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               color: color,
               fontWeight: FontWeight.w700,
             ),
@@ -497,33 +325,585 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  Widget _buildChart(Map<String, dynamic> results) {
-    final rentSpots =
-        _generateSpots(results['yearlyRentCosts'] as List<double>);
-    final buySpots =
-        _generateSpots(results['yearlyBuyCosts'] as List<double>);
+  //  Chart card 
 
-    final allY = [...rentSpots, ...buySpots].map((s) => s.y);
-    final maxY = allY.isNotEmpty
-        ? allY.reduce((a, b) => a > b ? a : b)
-        : 100000.0;
-    final yInterval = (maxY / 4).ceilToDouble();
+  Widget _buildChartCard(Map<String, dynamic> results) {
+    return SurfaceCard(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Cumulative Cost',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _chartMode == 0
+                          ? 'Total outgoings over time'
+                          : 'Net financial position',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _buildChartToggle(),
+            ],
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            height: 210,
+            child: _chartMode == 0
+                ? _buildCumulativeChart(results)
+                : _buildNetChart(results),
+          ),
+          const SizedBox(height: 12),
+          if (_chartMode == 0)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildLegendChip(AppTheme.accentOrange, 'Renting'),
+                const SizedBox(width: 20),
+                _buildLegendChip(AppTheme.accentGreen, 'Buying'),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChartToggle() {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _togglePill(0, Icons.stacked_line_chart_rounded, 'Cost'),
+          _togglePill(1, Icons.area_chart_rounded, 'Net'),
+        ],
+      ),
+    );
+  }
+
+  Widget _togglePill(int index, IconData icon, String label) {
+    final selected = _chartMode == index;
+    return GestureDetector(
+      onTap: () => setState(() => _chartMode = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          gradient: selected
+              ? const LinearGradient(
+                  colors: [Color(0xFF0D9488), Color(0xFF14B8A6)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: selected ? Colors.white : AppTheme.textTertiary,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: selected ? Colors.white : AppTheme.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //  Breakdown card 
+
+  Widget _buildBreakdownCard(Map<String, dynamic> results) {
+    return SurfaceCard(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Detailed Breakdown',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildBreakdownGrid([
+            _BreakdownItem(
+              Icons.key_rounded,
+              'Total Rent Cost',
+              '\u00a3${_fmt(results['totalRentCost'])}',
+              AppTheme.accentOrange,
+            ),
+            _BreakdownItem(
+              Icons.home_rounded,
+              'Total Buy Cost',
+              '\u00a3${_fmt(results['totalBuyCost'])}',
+              AppTheme.accentGreen,
+            ),
+            _BreakdownItem(
+              Icons.show_chart_rounded,
+              'Renter Inv. Gains',
+              '+\u00a3${_fmt(results['investmentGains'])}',
+              AppTheme.accentGreen,
+            ),
+            _BreakdownItem(
+              Icons.account_balance_rounded,
+              'Equity at Horizon',
+              '\u00a3${_fmt(results['equityGained'])}',
+              AppTheme.primaryBlue,
+            ),
+          ]),
+          const SizedBox(height: 12),
+          Divider(height: 1, color: AppTheme.borderLight.withValues(alpha: 0.7)),
+          const SizedBox(height: 12),
+          _buildHighlightRow(
+            Icons.apartment_rounded,
+            'Future Property Value',
+            '\u00a3${_fmt(results['futurePropertyValue'])}',
+            AppTheme.primaryBlue,
+          ),
+          const SizedBox(height: 10),
+          _buildHighlightRow(
+            Icons.credit_card_rounded,
+            'Remaining Mortgage',
+            '\u00a3${_fmt(results['remainingBalance'])}',
+            AppTheme.textSecondary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBreakdownGrid(List<_BreakdownItem> items) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 2.1,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+      ),
+      itemCount: items.length,
+      itemBuilder: (context, i) {
+        final item = items[i];
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: item.color.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: item.color.withValues(alpha: 0.14),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: item.color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(item.icon, size: 15, color: item.color),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      item.label,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppTheme.textTertiary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      item.value,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: item.color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHighlightRow(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+  ) {
+    return Row(
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 15, color: color),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppTheme.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  //  Assumptions section 
+
+  Widget _buildAssumptionsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: const [
+            Icon(Icons.tune_rounded, size: 16, color: AppTheme.textSecondary),
+            SizedBox(width: 8),
+            Text(
+              'Assumptions',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildSliderGroup(
+          label: 'Renting',
+          icon: Icons.key_rounded,
+          color: AppTheme.accentOrange,
+          children: [
+            _buildSliderRow(
+              label: 'Monthly Rent',
+              displayValue: '\u00a3${_monthlyRent.toStringAsFixed(0)}',
+              value: _monthlyRent,
+              min: 500,
+              max: 5000,
+              divisions: 90,
+              onChanged: (v) => setState(() => _monthlyRent = v),
+            ),
+            _dividerLine(),
+            _buildSliderRow(
+              label: 'Annual Rent Increase',
+              displayValue: '${_annualRentIncrease.toStringAsFixed(1)}%',
+              value: _annualRentIncrease,
+              min: 0,
+              max: 10,
+              divisions: 100,
+              onChanged: (v) => setState(() => _annualRentIncrease = v),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        _buildSliderGroup(
+          label: 'Property',
+          icon: Icons.home_rounded,
+          color: AppTheme.accentGreen,
+          children: [
+            _buildSliderRow(
+              label: 'House Price Growth',
+              displayValue: '${_housePriceGrowth.toStringAsFixed(1)}%',
+              value: _housePriceGrowth,
+              min: -5,
+              max: 15,
+              divisions: 100,
+              onChanged: (v) => setState(() => _housePriceGrowth = v),
+            ),
+            _dividerLine(),
+            _buildSliderRow(
+              label: 'Buying Costs',
+              displayValue: '\u00a3${_buyingCosts.toStringAsFixed(0)}',
+              value: _buyingCosts,
+              min: 1000,
+              max: 10000,
+              divisions: 18,
+              onChanged: (v) => setState(() => _buyingCosts = v),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        _buildSliderGroup(
+          label: 'Financial',
+          icon: Icons.account_balance_rounded,
+          color: AppTheme.primaryBlue,
+          children: [
+            _buildSliderRow(
+              label: 'Investment Return',
+              displayValue: '${_investmentReturn.toStringAsFixed(1)}%',
+              value: _investmentReturn,
+              min: 0,
+              max: 15,
+              divisions: 150,
+              onChanged: (v) => setState(() => _investmentReturn = v),
+            ),
+            _dividerLine(),
+            _buildSliderRow(
+              label: 'Time Horizon',
+              displayValue: '$_horizonYears yrs',
+              value: _horizonYears.toDouble(),
+              min: 1,
+              max: 30,
+              divisions: 29,
+              onChanged: (v) => setState(() => _horizonYears = v.toInt()),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSliderGroup({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundWhite,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppTheme.borderLight, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.06),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(17),
+              ),
+              border: Border(
+                bottom: BorderSide(
+                  color: color.withValues(alpha: 0.12),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(icon, size: 14, color: color),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Column(children: children),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSliderRow({
+    required String label,
+    required String displayValue,
+    required double value,
+    required double min,
+    required double max,
+    required int divisions,
+    required ValueChanged<double> onChanged,
+  }) {
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondary,
+              ),
+            ),
+            Text(
+              displayValue,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        Slider(
+          value: value,
+          min: min,
+          max: max,
+          divisions: divisions,
+          onChanged: onChanged,
+        ),
+        const SizedBox(height: 2),
+      ],
+    );
+  }
+
+  Widget _dividerLine() =>
+      Divider(height: 1, color: AppTheme.borderLight.withValues(alpha: 0.6));
+
+  //  Charts 
+
+  Widget _buildCumulativeChart(Map<String, dynamic> results) {
+    final rentSpots = _cumSpots(results['yearlyRentCosts'] as List<double>);
+    final buySpots = _cumSpots(results['yearlyBuyCosts'] as List<double>);
+    return _baseLineChart(
+      bars: [
+        _lineBar(rentSpots, AppTheme.accentOrange),
+        _lineBar(buySpots, AppTheme.accentGreen),
+      ],
+      tooltipLabels: ['Renting', 'Buying'],
+      tooltipColors: [AppTheme.accentOrange, AppTheme.accentGreen],
+    );
+  }
+
+  Widget _buildNetChart(Map<String, dynamic> results) {
+    final rentYearly = results['yearlyRentCosts'] as List<double>;
+    final buyYearly = results['yearlyBuyCosts'] as List<double>;
+    double rentCum = 0, buyCum = 0;
+    final netSpots = <FlSpot>[];
+    for (int i = 0; i < rentYearly.length; i++) {
+      rentCum += rentYearly[i];
+      buyCum += buyYearly[i];
+      netSpots.add(FlSpot((i + 1).toDouble(), rentCum - buyCum));
+    }
+    final hasNegative = netSpots.any((s) => s.y < 0);
+    final hasPositive = netSpots.any((s) => s.y > 0);
+    final lineColor = hasPositive && !hasNegative
+        ? AppTheme.accentGreen
+        : AppTheme.primaryBlue;
+    return _baseLineChart(
+      bars: [_lineBar(netSpots, lineColor)],
+      tooltipLabels: ['Saving (Buy)'],
+      tooltipColors: [lineColor],
+      showZeroLine: true,
+    );
+  }
+
+  Widget _baseLineChart({
+    required List<LineChartBarData> bars,
+    required List<String> tooltipLabels,
+    required List<Color> tooltipColors,
+    bool showZeroLine = false,
+  }) {
+    final allY = bars.expand((b) => b.spots.map((s) => s.y)).toList();
+    if (allY.isEmpty) return const SizedBox.shrink();
+    final maxY = allY.reduce((a, b) => a > b ? a : b);
+    final minY = allY.reduce((a, b) => a < b ? a : b);
+    final range = (maxY - minY).abs();
+    final yInterval = range > 0 ? (range / 4).abs() : 10000.0;
 
     return LineChart(
       LineChartData(
+        minY: minY < 0 ? minY * 1.15 : 0,
+        maxY: maxY * 1.12,
         lineTouchData: LineTouchData(
           handleBuiltInTouches: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (spot) => spot.barIndex == 0
-                ? AppTheme.accentOrange
-                : AppTheme.accentGreen,
+            getTooltipColor: (spot) =>
+                tooltipColors[spot.barIndex % tooltipColors.length],
             tooltipRoundedRadius: 10,
-            tooltipPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            tooltipPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
             getTooltipItems: (spots) => spots.map((spot) {
-              final label = spot.barIndex == 0 ? 'Renting' : 'Buying';
+              final label = tooltipLabels[spot.barIndex % tooltipLabels.length];
               return LineTooltipItem(
-                '$label (Yr ${spot.x.toInt()})\nÂ£${_fmtK(spot.y)}',
+                '$label (Yr ${spot.x.toInt()})\n\u00a3${_fmtK(spot.y.abs())}',
                 const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -539,23 +919,27 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
           drawVerticalLine: false,
           horizontalInterval: yInterval,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: AppTheme.borderLight.withValues(alpha: 0.7),
-            strokeWidth: 1,
-            dashArray: [5, 5],
+            color: value == 0 && showZeroLine
+                ? AppTheme.textTertiary.withValues(alpha: 0.5)
+                : AppTheme.borderLight.withValues(alpha: 0.7),
+            strokeWidth: value == 0 && showZeroLine ? 1.5 : 1,
+            dashArray: value == 0 && showZeroLine ? null : [5, 5],
           ),
         ),
         titlesData: FlTitlesData(
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 52,
+              reservedSize: 50,
               interval: yInterval,
               getTitlesWidget: (value, meta) {
-                if (value == 0) return const SizedBox.shrink();
+                if (value == meta.min || value == meta.max) {
+                  return const SizedBox.shrink();
+                }
                 return Padding(
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
-                    'Â£${_fmtK(value)}',
+                    '\u00a3${_fmtK(value)}',
                     style: const TextStyle(
                       fontSize: 10,
                       color: AppTheme.textTertiary,
@@ -570,15 +954,19 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 28,
+              reservedSize: 26,
               getTitlesWidget: (value, meta) {
-                if (value != value.roundToDouble()) {
+                if (value != value.roundToDouble()) return const SizedBox.shrink();
+                final y = value.toInt();
+                if (y < 1) return const SizedBox.shrink();
+                final step = _horizonYears > 15 ? 5 : 2;
+                if (y % step != 0 && y != 1 && y != _horizonYears) {
                   return const SizedBox.shrink();
                 }
                 return Padding(
-                  padding: const EdgeInsets.only(top: 6),
+                  padding: const EdgeInsets.only(top: 5),
                   child: Text(
-                    'Yr ${value.toInt()}',
+                    'Yr $y',
                     style: const TextStyle(
                       fontSize: 10,
                       color: AppTheme.textTertiary,
@@ -597,64 +985,49 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
           ),
         ),
         borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: rentSpots,
-            isCurved: true,
-            curveSmoothness: 0.3,
-            color: AppTheme.accentOrange,
-            barWidth: 2.5,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.accentOrange.withValues(alpha: 0.18),
-                  AppTheme.accentOrange.withValues(alpha: 0.0),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          LineChartBarData(
-            spots: buySpots,
-            isCurved: true,
-            curveSmoothness: 0.3,
-            color: AppTheme.accentGreen,
-            barWidth: 2.5,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.accentGreen.withValues(alpha: 0.18),
-                  AppTheme.accentGreen.withValues(alpha: 0.0),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-        ],
+        lineBarsData: bars,
       ),
     );
   }
 
-  List<FlSpot> _generateSpots(List<double> yearly) {
-    double cumulative = 0;
+  LineChartBarData _lineBar(List<FlSpot> spots, Color color) {
+    return LineChartBarData(
+      spots: spots,
+      isCurved: true,
+      curveSmoothness: 0.35,
+      color: color,
+      barWidth: 2.5,
+      dotData: const FlDotData(show: false),
+      belowBarData: BarAreaData(
+        show: true,
+        gradient: LinearGradient(
+          colors: [
+            color.withValues(alpha: 0.16),
+            color.withValues(alpha: 0.0),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+    );
+  }
+
+  List<FlSpot> _cumSpots(List<double> yearly) {
+    double cum = 0;
     return List.generate(yearly.length, (i) {
-      cumulative += yearly[i];
-      return FlSpot((i + 1).toDouble(), cumulative);
+      cum += yearly[i];
+      return FlSpot((i + 1).toDouble(), cum);
     });
   }
+
+  //  Legend 
 
   Widget _buildLegendChip(Color color, String label) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 24,
+          width: 22,
           height: 3,
           decoration: BoxDecoration(
             color: color,
@@ -674,111 +1047,27 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  Widget _buildBreakdownRow(
-    IconData icon,
-    String label,
-    String value,
-    Color color, {
-    bool bold = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 16, color: color),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.textSecondary,
-                fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
-              color: color,
-              fontSize: bold ? 16 : 15,
-            ),
-          ),
-        ],
-      ),
-    );
+  //  Formatters 
+
+  String _fmt(double v) {
+    if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(2)}m';
+    if (v >= 1000) return '${(v / 1000).toStringAsFixed(0)}k';
+    return v.toStringAsFixed(0);
   }
 
-  Widget _buildDivider() => Divider(
-        height: 1,
-        color: AppTheme.borderLight.withValues(alpha: 0.6),
-      );
-
-  Widget _buildSliderDivider() => Divider(
-        height: 24,
-        color: AppTheme.borderLight.withValues(alpha: 0.5),
-      );
-
-  Widget _buildSlider({
-    required IconData icon,
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String Function(double) valueFormatter,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 16, color: AppTheme.textTertiary),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Text(
-              valueFormatter(value),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.primaryBlue,
-              ),
-            ),
-          ],
-        ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 3,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-            activeColor: AppTheme.primaryBlue,
-            inactiveColor: AppTheme.borderLight,
-          ),
-        ),
-      ],
-    );
+  String _fmtK(double v) {
+    if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(1)}m';
+    if (v >= 1000) return '${(v / 1000).toStringAsFixed(0)}k';
+    return v.toStringAsFixed(0);
   }
+}
+
+//  Data class 
+
+class _BreakdownItem {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+  const _BreakdownItem(this.icon, this.label, this.value, this.color);
 }

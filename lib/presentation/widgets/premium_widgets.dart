@@ -7,6 +7,8 @@ class HeroSummaryCard extends StatelessWidget {
   final double loanAmount;
   final double stampDuty;
   final double ltv;
+  final String region;
+  final ValueChanged<String?> onRegionChanged;
 
   const HeroSummaryCard({
     super.key,
@@ -14,6 +16,8 @@ class HeroSummaryCard extends StatelessWidget {
     required this.loanAmount,
     required this.stampDuty,
     required this.ltv,
+    required this.region,
+    required this.onRegionChanged,
   });
 
   @override
@@ -43,19 +47,58 @@ class HeroSummaryCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Monthly Payment',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondary,
-                fontSize: 14,
-                fontWeight: AppTheme.fontWeightMedium,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Monthly Payment',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.textSecondary,
+                    fontSize: 12,
+                    fontWeight: AppTheme.fontWeightMedium,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceLight,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppTheme.borderLight, width: 1),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: region,
+                      isDense: true,
+                      icon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 14,
+                        color: AppTheme.primaryBlue,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.primaryBlue,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      onChanged: onRegionChanged,
+                      items: ['England/NI', 'Scotland', 'Wales']
+                          .map(
+                            (r) => DropdownMenuItem(value: r, child: Text(r)),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 2),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
@@ -78,30 +121,30 @@ class HeroSummaryCard extends StatelessWidget {
                     '£${monthlyPayment.toStringAsFixed(0)}',
                     key: ValueKey(monthlyPayment.toStringAsFixed(0)),
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      fontSize: 48,
+                      fontSize: 34,
                       fontWeight: AppTheme.fontWeightBold,
                       color: AppTheme.textPrimary,
                       height: 1.1,
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
+                  padding: const EdgeInsets.only(bottom: 2),
                   child: Text(
                     '/month',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppTheme.textSecondary,
-                      fontSize: 16,
+                      fontSize: 13,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             Wrap(
-              spacing: 12,
-              runSpacing: 12,
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 MetricChip(
                   icon: Icons.account_balance_rounded,
@@ -160,12 +203,12 @@ class MetricChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: highlighted
             ? color.withValues(alpha: 0.15)
             : AppTheme.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: highlighted
             ? Border.all(color: color.withValues(alpha: 0.3), width: 1.5)
             : null,
@@ -175,23 +218,23 @@ class MetricChip extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: 16,
+            size: 13,
             color: highlighted ? color : AppTheme.textSecondary,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 11,
               color: AppTheme.textSecondary,
               fontWeight: AppTheme.fontWeightMedium,
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 4),
           Text(
             value,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               color: highlighted ? color : AppTheme.textPrimary,
               fontWeight: AppTheme.fontWeightSemiBold,
             ),
@@ -243,13 +286,13 @@ class ControlCard extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Column(
@@ -260,16 +303,16 @@ class ControlCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: AppTheme.fontWeightSemiBold,
                         color: AppTheme.textPrimary,
-                        fontSize: 15,
+                        fontSize: 13,
                       ),
                     ),
                     if (subtitle != null) ...[
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 1),
                       Text(
                         subtitle!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppTheme.textSecondary,
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                       ),
                     ],
@@ -279,19 +322,19 @@ class ControlCard extends StatelessWidget {
               ValueChip(value: value),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 4),
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
-              activeTrackColor: AppTheme.primaryBlue,
+              activeTrackColor: const Color(0xFF3FC7D6),
               inactiveTrackColor: AppTheme.borderLight,
               thumbColor: Colors.white,
-              overlayColor: AppTheme.primaryLight.withValues(alpha: 0.2),
-              trackHeight: 5,
+              overlayColor: Colors.transparent,
+              trackHeight: 3,
               thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 10,
+                enabledThumbRadius: 8,
                 elevation: 3,
               ),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+              overlayShape: SliderComponentShape.noOverlay,
             ),
             child: Slider(
               value: sliderValue,
@@ -340,29 +383,12 @@ class ValueChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.primaryBlue.withValues(alpha: 0.12),
-            AppTheme.primaryLight.withValues(alpha: 0.08),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.primaryBlue.withValues(alpha: 0.2),
-          width: 1.5,
-        ),
-      ),
-      child: Text(
-        value,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: AppTheme.fontWeightSemiBold,
-          color: AppTheme.primaryBlue,
-        ),
+    return Text(
+      value,
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: AppTheme.fontWeightSemiBold,
+        color: AppTheme.textPrimary,
       ),
     );
   }
@@ -393,7 +419,7 @@ class PremiumRegionSelector extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -401,21 +427,21 @@ class PremiumRegionSelector extends StatelessWidget {
             children: [
               Icon(
                 Icons.location_on_rounded,
-                size: 20,
+                size: 16,
                 color: AppTheme.primaryBlue,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Text(
                 'UK Region',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: AppTheme.fontWeightSemiBold,
                   color: AppTheme.textPrimary,
-                  fontSize: 16,
+                  fontSize: 13,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
               color: AppTheme.surfaceLight,

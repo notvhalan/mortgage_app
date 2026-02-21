@@ -7,9 +7,9 @@ class AppTheme {
   // ============================================
 
   // Primary Brand Colors
-  static const Color primaryBlue = Color(0xFF2E5BFF);
-  static const Color primaryBlueDark = Color(0xFF1E3FCC);
-  static const Color primaryBlueLight = Color(0xFF5C7FFF);
+  static const Color primaryBlue = Color(0xFF0D9488);
+  static const Color primaryBlueDark = Color(0xFF0F766E);
+  static const Color primaryBlueLight = Color(0xFF14B8A6);
 
   // Accent Colors
   static const Color accentPurple = Color(0xFF8B5CF6);
@@ -62,7 +62,7 @@ class AppTheme {
   static const Color riskVeryHigh = Color(0xFFEF4444);
 
   // Chart & Graph Colors
-  static const Color chartPrimary = Color(0xFF2E5BFF);
+  static const Color chartPrimary = Color(0xFF0D9488);
   static const Color chartSecondary = Color(0xFF8B5CF6);
   static const Color chartTertiary = Color(0xFF06B6D4);
   static const Color chartQuaternary = Color(0xFFF59E0B);
@@ -311,7 +311,10 @@ class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radiusLarge),
       ),
-      margin: const EdgeInsets.all(spacingSmall),
+      margin: const EdgeInsets.symmetric(
+        horizontal: spacingSmall,
+        vertical: spacingXSmall,
+      ),
     ),
 
     // Elevated Button
@@ -492,19 +495,23 @@ class AppTheme {
 
     // Slider
     sliderTheme: SliderThemeData(
-      activeTrackColor: primaryBlue,
+      activeTrackColor: const Color(0xFF3FC7D6),
       inactiveTrackColor: borderLight,
-      thumbColor: primaryBlue,
-      overlayColor: primaryLight.withValues(alpha: 0.12),
-      valueIndicatorColor: primaryDark,
+      thumbColor: Colors.white,
+      overlayColor: const Color(0xFF67D3C8).withValues(alpha: 0.18),
+      valueIndicatorColor: const Color(0xFF3FC7D6),
       valueIndicatorTextStyle: const TextStyle(
         color: Colors.white,
         fontSize: fontSizeSmall,
         fontWeight: fontWeightMedium,
       ),
-      trackHeight: 4,
-      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-      overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+      trackHeight: 2,
+      trackShape: const GradientSliderTrackShape(),
+      thumbShape: const RoundSliderThumbShape(
+        enabledThumbRadius: 8,
+        elevation: 3,
+      ),
+      overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
     ),
 
     // Divider
@@ -691,7 +698,10 @@ class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radiusLarge),
       ),
-      margin: const EdgeInsets.all(spacingSmall),
+      margin: const EdgeInsets.symmetric(
+        horizontal: spacingSmall,
+        vertical: spacingXSmall,
+      ),
     ),
 
     // Elevated Button
@@ -872,19 +882,23 @@ class AppTheme {
 
     // Slider
     sliderTheme: SliderThemeData(
-      activeTrackColor: primaryLight,
+      activeTrackColor: const Color(0xFF3FC7D6),
       inactiveTrackColor: borderDark,
-      thumbColor: primaryLight,
-      overlayColor: primaryDark.withValues(alpha: 0.12),
-      valueIndicatorColor: primaryBlue,
+      thumbColor: Colors.white,
+      overlayColor: const Color(0xFF67D3C8).withValues(alpha: 0.18),
+      valueIndicatorColor: const Color(0xFF3FC7D6),
       valueIndicatorTextStyle: const TextStyle(
         color: Colors.white,
         fontSize: fontSizeSmall,
         fontWeight: fontWeightMedium,
       ),
-      trackHeight: 4,
-      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-      overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+      trackHeight: 2,
+      trackShape: const GradientSliderTrackShape(),
+      thumbShape: const RoundSliderThumbShape(
+        enabledThumbRadius: 8,
+        elevation: 3,
+      ),
+      overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
     ),
 
     // Divider
@@ -1010,4 +1024,73 @@ class AppTheme {
     // Icon Theme
     iconTheme: const IconThemeData(color: Colors.white, size: 24),
   );
+}
+
+// ============================================================
+// GRADIENT SLIDER TRACK
+// ============================================================
+
+/// Apple-style teal gradient applied to the active portion of every Slider.
+const LinearGradient sliderGradient = LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: [Color(0xFF9FE6DE), Color(0xFF67D3C8), Color(0xFF3FC7D6)],
+);
+
+/// Custom [SliderTrackShape] that paints the active track with [sliderGradient]
+/// and the inactive track in the theme's [inactiveTrackColor].
+class GradientSliderTrackShape extends SliderTrackShape
+    with BaseSliderTrackShape {
+  const GradientSliderTrackShape();
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset offset, {
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required Animation<double> enableAnimation,
+    required TextDirection textDirection,
+    required Offset thumbCenter,
+    Offset? secondaryOffset,
+    bool isDiscrete = false,
+    bool isEnabled = false,
+  }) {
+    final Rect trackRect = getPreferredRect(
+      parentBox: parentBox,
+      offset: offset,
+      sliderTheme: sliderTheme,
+      isEnabled: isEnabled,
+      isDiscrete: isDiscrete,
+    );
+
+    final Radius radius = Radius.circular(trackRect.height / 2);
+
+    // Full-width inactive background
+    context.canvas.drawRRect(
+      RRect.fromRectAndRadius(trackRect, radius),
+      Paint()
+        ..color = sliderTheme.inactiveTrackColor ?? const Color(0xFFE5E7EB),
+    );
+
+    // Active portion — gradient from left edge to thumb
+    final double activeEnd = thumbCenter.dx.clamp(
+      trackRect.left,
+      trackRect.right,
+    );
+    if (activeEnd > trackRect.left) {
+      context.canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTRB(
+            trackRect.left,
+            trackRect.top,
+            activeEnd,
+            trackRect.bottom,
+          ),
+          radius,
+        ),
+        Paint()..shader = sliderGradient.createShader(trackRect),
+      );
+    }
+  }
 }

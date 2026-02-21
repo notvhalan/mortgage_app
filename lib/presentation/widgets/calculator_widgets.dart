@@ -21,24 +21,24 @@ class SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           children: [
             Text(
               'Monthly Payment',
               style: Theme.of(
                 context,
-              ).textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondary),
+              ).textTheme.bodySmall?.copyWith(color: AppTheme.textSecondary),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               '£${monthlyPayment.toStringAsFixed(0)}',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: AppTheme.primaryBlue,
                 fontWeight: AppTheme.fontWeightBold,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -236,6 +236,9 @@ class _InputSliderState extends State<InputSlider> {
             SliderTheme(
               data: SliderTheme.of(context).copyWith(
                 trackHeight: 2,
+                thumbColor: Colors.white,
+                overlayColor: Colors.transparent,
+                overlayShape: SliderComponentShape.noOverlay,
               ),
               child: Slider(
                 value: widget.value,
@@ -243,7 +246,6 @@ class _InputSliderState extends State<InputSlider> {
                 max: widget.max,
                 divisions: widget.divisions,
                 onChanged: widget.onChanged,
-                activeColor: AppTheme.primaryBlue,
               ),
             ),
           ],
@@ -277,8 +279,10 @@ class RegionSelector extends StatelessWidget {
                 context,
               ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             SegmentedButton<String>(
+              showSelectedIcon: false,
+              style: const ButtonStyle(visualDensity: VisualDensity.compact),
               segments: const [
                 ButtonSegment(value: 'England/NI', label: Text('England/NI')),
                 ButtonSegment(value: 'Scotland', label: Text('Scotland')),

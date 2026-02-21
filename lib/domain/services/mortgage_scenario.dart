@@ -11,6 +11,7 @@ class MortgageScenario extends ChangeNotifier {
   double _interestRate = 4.5;
   int _termYears = 25;
   String _region = 'England/NI';
+  bool _isFirstTimeBuyer = false;
 
   // Calculated outputs
   MortgageCalculation? _calculation;
@@ -22,6 +23,7 @@ class MortgageScenario extends ChangeNotifier {
   double get interestRate => _interestRate;
   int get termYears => _termYears;
   String get region => _region;
+  bool get isFirstTimeBuyer => _isFirstTimeBuyer;
   double get deposit => _propertyPrice * (_depositPercentage / 100);
 
   // Getters for outputs
@@ -45,6 +47,13 @@ class MortgageScenario extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Update deposit by absolute £ amount (computes percentage internally)
+  void updateDepositAmount(double amount) {
+    _depositPercentage = (amount / _propertyPrice) * 100;
+    _calculate();
+    notifyListeners();
+  }
+
   void updateInterestRate(double value) {
     _interestRate = value;
     _calculate();
@@ -63,12 +72,19 @@ class MortgageScenario extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateIsFirstTimeBuyer(bool value) {
+    _isFirstTimeBuyer = value;
+    _calculate();
+    notifyListeners();
+  }
+
   void resetToDefaults() {
     _propertyPrice = 300000;
     _depositPercentage = 10;
     _interestRate = 4.5;
     _termYears = 25;
     _region = 'England/NI';
+    _isFirstTimeBuyer = false;
     _calculate();
     notifyListeners();
   }
@@ -82,6 +98,7 @@ class MortgageScenario extends ChangeNotifier {
       interestRate: _interestRate,
       termYears: _termYears,
       region: _region,
+      isFirstTimeBuyer: _isFirstTimeBuyer,
     );
 
     _amortisationSchedule = MortgageCalculator.generateAmortisationSchedule(
