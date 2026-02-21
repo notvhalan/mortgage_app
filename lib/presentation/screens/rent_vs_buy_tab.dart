@@ -53,8 +53,9 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
             );
 
             final isBuyCheaper = results['difference'] > 0;
-            final accentColor =
-                isBuyCheaper ? AppTheme.accentGreen : AppTheme.accentOrange;
+            final accentColor = isBuyCheaper
+                ? AppTheme.accentGreen
+                : AppTheme.accentOrange;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -81,7 +82,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  //  Header 
+  //  Header
 
   Widget _buildHeader() {
     return Row(
@@ -125,7 +126,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  //  Verdict banner 
+  //  Verdict banner
 
   Widget _buildVerdictBanner(
     Map<String, dynamic> results,
@@ -239,7 +240,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  //  Metrics strip 
+  //  Metrics strip
 
   Widget _buildMetricsStrip(Map<String, dynamic> results) {
     return Row(
@@ -325,7 +326,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  //  Chart card 
+  //  Chart card
 
   Widget _buildChartCard(Map<String, dynamic> results) {
     return SurfaceCard(
@@ -449,7 +450,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  //  Breakdown card 
+  //  Breakdown card
 
   Widget _buildBreakdownCard(Map<String, dynamic> results) {
     return SurfaceCard(
@@ -493,7 +494,10 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
             ),
           ]),
           const SizedBox(height: 12),
-          Divider(height: 1, color: AppTheme.borderLight.withValues(alpha: 0.7)),
+          Divider(
+            height: 1,
+            color: AppTheme.borderLight.withValues(alpha: 0.7),
+          ),
           const SizedBox(height: 12),
           _buildHighlightRow(
             Icons.apartment_rounded,
@@ -622,7 +626,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  //  Assumptions section 
+  //  Assumptions section
 
   Widget _buildAssumptionsSection() {
     return Column(
@@ -835,7 +839,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
   Widget _dividerLine() =>
       Divider(height: 1, color: AppTheme.borderLight.withValues(alpha: 0.6));
 
-  //  Charts 
+  //  Charts
 
   Widget _buildCumulativeChart(Map<String, dynamic> results) {
     final rentSpots = _cumSpots(results['yearlyRentCosts'] as List<double>);
@@ -956,7 +960,8 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
               showTitles: true,
               reservedSize: 26,
               getTitlesWidget: (value, meta) {
-                if (value != value.roundToDouble()) return const SizedBox.shrink();
+                if (value != value.roundToDouble())
+                  return const SizedBox.shrink();
                 final y = value.toInt();
                 if (y < 1) return const SizedBox.shrink();
                 final step = _horizonYears > 15 ? 5 : 2;
@@ -1001,10 +1006,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
       belowBarData: BarAreaData(
         show: true,
         gradient: LinearGradient(
-          colors: [
-            color.withValues(alpha: 0.16),
-            color.withValues(alpha: 0.0),
-          ],
+          colors: [color.withValues(alpha: 0.16), color.withValues(alpha: 0.0)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -1020,7 +1022,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     });
   }
 
-  //  Legend 
+  //  Legend
 
   Widget _buildLegendChip(Color color, String label) {
     return Row(
@@ -1047,7 +1049,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  //  Formatters 
+  //  Formatters
 
   String _fmt(double v) {
     if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(2)}m';
@@ -1062,7 +1064,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
   }
 }
 
-//  Data class 
+//  Data class
 
 class _BreakdownItem {
   final IconData icon;

@@ -84,8 +84,9 @@ class _BreakdownTabState extends State<BreakdownTab> {
     });
     _lumpSumMonthFocus.addListener(() {
       if (!_lumpSumMonthFocus.hasFocus) {
-        final maxMonth =
-            (widget.scenario.termYears * 12).clamp(1, 120).toDouble();
+        final maxMonth = (widget.scenario.termYears * 12)
+            .clamp(1, 120)
+            .toDouble();
         _submitOverpay(
           _lumpSumMonthCtrl.text,
           1,
@@ -694,11 +695,18 @@ class _BreakdownTabState extends State<BreakdownTab> {
                           controller: _lumpSumMonthCtrl,
                           focusNode: _lumpSumMonthFocus,
                           value: _lumpSumMonth
-                              .clamp(1, (widget.scenario.termYears * 12).clamp(1, 120))
+                              .clamp(
+                                1,
+                                (widget.scenario.termYears * 12).clamp(1, 120),
+                              )
                               .toDouble(),
                           min: 1,
-                          max: (widget.scenario.termYears * 12).clamp(1, 120).toDouble(),
-                          divisions: (widget.scenario.termYears * 12).clamp(1, 120) - 1,
+                          max: (widget.scenario.termYears * 12)
+                              .clamp(1, 120)
+                              .toDouble(),
+                          divisions:
+                              (widget.scenario.termYears * 12).clamp(1, 120) -
+                              1,
                           prefix: '',
                           suffix: '',
                           onChanged: (v) {
