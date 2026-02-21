@@ -21,24 +21,24 @@ class SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppTheme.sectionSpacing),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           children: [
             Text(
               'Monthly Payment',
               style: Theme.of(
                 context,
-              ).textTheme.titleMedium?.copyWith(color: AppTheme.textSecondary),
+              ).textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondary),
             ),
-            const SizedBox(height: AppTheme.spacingSmall),
+            const SizedBox(height: 4),
             Text(
               '£${monthlyPayment.toStringAsFixed(0)}',
-              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                 color: AppTheme.primaryBlue,
                 fontWeight: AppTheme.fontWeightBold,
               ),
             ),
-            const SizedBox(height: AppTheme.spacingLarge),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -83,12 +83,12 @@ class SummaryCard extends StatelessWidget {
           label,
           style: Theme.of(
             context,
-          ).textTheme.labelMedium?.copyWith(color: AppTheme.textSecondary),
+          ).textTheme.labelSmall?.copyWith(color: AppTheme.textSecondary),
         ),
-        const SizedBox(height: AppTheme.spacingXSmall),
+        const SizedBox(height: 2),
         Text(
           value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: AppTheme.fontWeightSemiBold,
             color: color ?? AppTheme.textPrimary,
           ),
@@ -185,7 +185,7 @@ class _InputSliderState extends State<InputSlider> {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppTheme.cardPadding),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -196,11 +196,11 @@ class _InputSliderState extends State<InputSlider> {
                   widget.label,
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 if (widget.showTextField)
                   SizedBox(
-                    width: 120,
+                    width: 96,
                     child: TextField(
                       controller: _controller,
                       focusNode: _focusNode,
@@ -208,15 +208,15 @@ class _InputSliderState extends State<InputSlider> {
                         decimal: true,
                       ),
                       textAlign: TextAlign.right,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.primaryBlue,
                       ),
                       decoration: const InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 8,
+                          horizontal: 6,
+                          vertical: 4,
                         ),
                         border: OutlineInputBorder(),
                       ),
@@ -226,20 +226,25 @@ class _InputSliderState extends State<InputSlider> {
                 else
                   Text(
                     widget.valueFormatter(widget.value),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppTheme.primaryBlue,
                     ),
                   ),
               ],
             ),
-            Slider(
-              value: widget.value,
-              min: widget.min,
-              max: widget.max,
-              divisions: widget.divisions,
-              onChanged: widget.onChanged,
-              activeColor: AppTheme.primaryBlue,
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 2,
+              ),
+              child: Slider(
+                value: widget.value,
+                min: widget.min,
+                max: widget.max,
+                divisions: widget.divisions,
+                onChanged: widget.onChanged,
+                activeColor: AppTheme.primaryBlue,
+              ),
             ),
           ],
         ),
@@ -262,7 +267,7 @@ class RegionSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppTheme.cardPadding),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -270,9 +275,9 @@ class RegionSelector extends StatelessWidget {
               'Region',
               style: Theme.of(
                 context,
-              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             SegmentedButton<String>(
               segments: const [
                 ButtonSegment(value: 'England/NI', label: Text('England/NI')),

@@ -67,7 +67,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     ltv: calculation!.ltv,
                   ),
 
-                  const SizedBox(height: AppTheme.sectionSpacing),
+                  const SizedBox(height: 12),
 
                   // Input Controls
                   InputSlider(
@@ -83,7 +83,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     },
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
 
                   InputSlider(
                     label: 'Deposit',
@@ -98,7 +98,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     },
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
 
                   InputSlider(
                     label: 'Interest Rate',
@@ -113,7 +113,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     },
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
 
                   InputSlider(
                     label: 'Term',
@@ -128,7 +128,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     },
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
 
                   RegionSelector(
                     selectedRegion: region,
@@ -138,10 +138,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     },
                   ),
 
-                  const SizedBox(height: AppTheme.sectionSpacing),
+                  const SizedBox(height: 12),
 
                   // Visualization Section - 2x2 Grid
-                  Container(
+                  SizedBox(
                     height: 600,
                     child: GridView.count(
                       crossAxisCount: 2,

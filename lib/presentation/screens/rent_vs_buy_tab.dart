@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/services/mortgage_scenario.dart';
@@ -60,7 +60,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Header ──────────────────────────────────────────
+                  // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   Row(
                     children: [
                       Container(
@@ -102,7 +102,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
 
                   const SizedBox(height: 20),
 
-                  // ── Verdict card ────────────────────────────────────
+                  // â”€â”€ Verdict card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
@@ -148,7 +148,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '£${_fmt(results['difference'].abs())}',
+                          'Â£${_fmt(results['difference'].abs())}',
                           style: TextStyle(
                             fontSize: 42,
                             fontWeight: FontWeight.w800,
@@ -202,13 +202,13 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
 
                   const SizedBox(height: 14),
 
-                  // ── Stat chips ──────────────────────────────────────
+                  // â”€â”€ Stat chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   Row(
                     children: [
                       Expanded(
                         child: _buildStatChip(
                           'Rent Cost',
-                          '£${_fmtK(results['totalRentCost'])}',
+                          'Â£${_fmtK(results['totalRentCost'])}',
                           AppTheme.accentOrange,
                           Icons.key_rounded,
                         ),
@@ -217,7 +217,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
                       Expanded(
                         child: _buildStatChip(
                           'Buy Cost',
-                          '£${_fmtK(results['totalBuyCost'])}',
+                          'Â£${_fmtK(results['totalBuyCost'])}',
                           AppTheme.accentGreen,
                           Icons.home_rounded,
                         ),
@@ -226,7 +226,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
                       Expanded(
                         child: _buildStatChip(
                           'Future Value',
-                          '£${_fmtK(results['futurePropertyValue'])}',
+                          'Â£${_fmtK(results['futurePropertyValue'])}',
                           AppTheme.primaryBlue,
                           Icons.trending_up_rounded,
                         ),
@@ -236,7 +236,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
 
                   const SizedBox(height: 14),
 
-                  // ── Chart ───────────────────────────────────────────
+                  // â”€â”€ Chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   SurfaceCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,7 +277,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
 
                   const SizedBox(height: 14),
 
-                  // ── Detailed breakdown ──────────────────────────────
+                  // â”€â”€ Detailed breakdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   SurfaceCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,35 +294,35 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
                         _buildBreakdownRow(
                           Icons.key_rounded,
                           'Total Rent Cost',
-                          '£${_fmt(results['totalRentCost'])}',
+                          'Â£${_fmt(results['totalRentCost'])}',
                           AppTheme.accentOrange,
                         ),
                         _buildDivider(),
                         _buildBreakdownRow(
                           Icons.home_rounded,
                           'Total Buy Cost',
-                          '£${_fmt(results['totalBuyCost'])}',
+                          'Â£${_fmt(results['totalBuyCost'])}',
                           AppTheme.accentGreen,
                         ),
                         _buildDivider(),
                         _buildBreakdownRow(
                           Icons.show_chart_rounded,
                           'Opportunity Cost',
-                          '£${_fmt(results['opportunityCost'])}',
+                          'Â£${_fmt(results['opportunityCost'])}',
                           AppTheme.textSecondary,
                         ),
                         _buildDivider(),
                         _buildBreakdownRow(
                           Icons.trending_up_rounded,
                           'Equity Gained',
-                          '£${_fmt(results['equityGained'])}',
+                          'Â£${_fmt(results['equityGained'])}',
                           AppTheme.primaryBlue,
                         ),
                         _buildDivider(),
                         _buildBreakdownRow(
                           Icons.apartment_rounded,
                           'Future Property Value',
-                          '£${_fmt(results['futurePropertyValue'])}',
+                          'Â£${_fmt(results['futurePropertyValue'])}',
                           AppTheme.primaryBlue,
                           bold: true,
                         ),
@@ -332,7 +332,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
 
                   const SizedBox(height: 14),
 
-                  // ── Assumptions header ──────────────────────────────
+                  // â”€â”€ Assumptions header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 12),
                     child: Row(
@@ -355,7 +355,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
                     ),
                   ),
 
-                  // ── Sliders ─────────────────────────────────────────
+                  // â”€â”€ Sliders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                   SurfaceCard(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -367,7 +367,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
                           min: 500,
                           max: 5000,
                           divisions: 90,
-                          valueFormatter: (v) => '£${v.toStringAsFixed(0)}',
+                          valueFormatter: (v) => 'Â£${v.toStringAsFixed(0)}',
                           onChanged: (v) => setState(() => _monthlyRent = v),
                         ),
                         _buildSliderDivider(),
@@ -426,7 +426,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
                           min: 1000,
                           max: 10000,
                           divisions: 18,
-                          valueFormatter: (v) => '£${v.toStringAsFixed(0)}',
+                          valueFormatter: (v) => 'Â£${v.toStringAsFixed(0)}',
                           onChanged: (v) => setState(() => _buyingCosts = v),
                         ),
                       ],
@@ -443,7 +443,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   String _fmt(double v) {
     if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(2)}m';
@@ -523,7 +523,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
             getTooltipItems: (spots) => spots.map((spot) {
               final label = spot.barIndex == 0 ? 'Renting' : 'Buying';
               return LineTooltipItem(
-                '$label (Yr ${spot.x.toInt()})\n£${_fmtK(spot.y)}',
+                '$label (Yr ${spot.x.toInt()})\nÂ£${_fmtK(spot.y)}',
                 const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -555,7 +555,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
-                    '£${_fmtK(value)}',
+                    'Â£${_fmtK(value)}',
                     style: const TextStyle(
                       fontSize: 10,
                       color: AppTheme.textTertiary,
@@ -767,8 +767,6 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             trackHeight: 3,
-            thumbRadius: 10,
-            overlayRadius: 18,
           ),
           child: Slider(
             value: value,
@@ -781,434 +779,6 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
           ),
         ),
       ],
-    );
-  }
-}
-
-
-          if (calc == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final results = RentBuyCalculator.calculate(
-            monthlyRent: _monthlyRent,
-            annualRentIncrease: _annualRentIncrease,
-            horizonYears: _horizonYears,
-            monthlyMortgagePayment: calc.monthlyPayment,
-            propertyPrice: calc.propertyPrice,
-            deposit: calc.deposit,
-            stampDuty: calc.stampDuty,
-            loanAmount: calc.loanAmount,
-            mortgageTermYears: widget.scenario.termYears,
-            housePriceGrowth: _housePriceGrowth,
-            investmentReturn: _investmentReturn,
-            buyingCosts: _buyingCosts,
-          );
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Comparison summary card
-                Card(
-                  color: results['difference'] > 0
-                      ? AppTheme.accentGreen.withValues(alpha: 0.1)
-                      : AppTheme.warning.withValues(alpha: 0.1),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        Text(
-                          results['difference'] > 0
-                              ? 'Buying is cheaper'
-                              : 'Renting is cheaper',
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: results['difference'] > 0
-                                    ? AppTheme.accentGreen
-                                    : AppTheme.warning,
-                              ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'by £${results['difference'].abs().toStringAsFixed(0)}',
-                          style: Theme.of(context).textTheme.displaySmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: results['difference'] > 0
-                                    ? AppTheme.accentGreen
-                                    : AppTheme.warning,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'over $_horizonYears years',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: AppTheme.textSecondary),
-                        ),
-                        if (results['breakEvenYear'] != null) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryBlue.withValues(
-                                alpha: 0.1,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.timeline,
-                                  color: AppTheme.primaryBlue,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Break-even: Year ${results['breakEvenYear']}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.primaryBlue,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Chart
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Cumulative Cost Comparison',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          height: 250,
-                          child: LineChart(
-                            LineChartData(
-                              gridData: FlGridData(
-                                show: true,
-                                drawVerticalLine: false,
-                              ),
-                              titlesData: FlTitlesData(
-                                leftTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    reservedSize: 60,
-                                    getTitlesWidget: (value, meta) {
-                                      return Text(
-                                        '£${(value / 1000).toStringAsFixed(0)}k',
-                                        style: const TextStyle(fontSize: 10),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    getTitlesWidget: (value, meta) {
-                                      return Text(
-                                        'Y${value.toInt()}',
-                                        style: const TextStyle(fontSize: 10),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                rightTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                topTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                              ),
-                              borderData: FlBorderData(show: true),
-                              lineBarsData: [
-                                // Rent line
-                                LineChartBarData(
-                                  spots: _generateSpots(
-                                    results['yearlyRentCosts'],
-                                  ),
-                                  color: AppTheme.warning,
-                                  barWidth: 3,
-                                  dotData: FlDotData(show: false),
-                                ),
-                                // Buy line
-                                LineChartBarData(
-                                  spots: _generateSpots(
-                                    results['yearlyBuyCosts'],
-                                  ),
-                                  color: AppTheme.accentGreen,
-                                  barWidth: 3,
-                                  dotData: FlDotData(show: false),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildLegend('Rent', AppTheme.warning),
-                            const SizedBox(width: 24),
-                            _buildLegend('Buy', AppTheme.accentGreen),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                Text(
-                  'Assumptions',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-
-                const SizedBox(height: 16),
-
-                _buildSliderCard(
-                  label: 'Monthly Rent',
-                  value: _monthlyRent,
-                  min: 500,
-                  max: 5000,
-                  divisions: 90,
-                  valueFormatter: (v) => '£${v.toStringAsFixed(0)}',
-                  onChanged: (v) => setState(() => _monthlyRent = v),
-                ),
-
-                const SizedBox(height: 12),
-
-                _buildSliderCard(
-                  label: 'Annual Rent Increase',
-                  value: _annualRentIncrease,
-                  min: 0,
-                  max: 10,
-                  divisions: 100,
-                  valueFormatter: (v) => '${v.toStringAsFixed(1)}%',
-                  onChanged: (v) => setState(() => _annualRentIncrease = v),
-                ),
-
-                const SizedBox(height: 12),
-
-                _buildSliderCard(
-                  label: 'House Price Growth',
-                  value: _housePriceGrowth,
-                  min: -5,
-                  max: 15,
-                  divisions: 100,
-                  valueFormatter: (v) => '${v.toStringAsFixed(1)}%',
-                  onChanged: (v) => setState(() => _housePriceGrowth = v),
-                ),
-
-                const SizedBox(height: 12),
-
-                _buildSliderCard(
-                  label: 'Investment Return (if not buying)',
-                  value: _investmentReturn,
-                  min: 0,
-                  max: 15,
-                  divisions: 150,
-                  valueFormatter: (v) => '${v.toStringAsFixed(1)}%',
-                  onChanged: (v) => setState(() => _investmentReturn = v),
-                ),
-
-                const SizedBox(height: 12),
-
-                _buildSliderCard(
-                  label: 'Time Horizon (years)',
-                  value: _horizonYears.toDouble(),
-                  min: 1,
-                  max: 30,
-                  divisions: 29,
-                  valueFormatter: (v) => '${v.toInt()} years',
-                  onChanged: (v) => setState(() => _horizonYears = v.toInt()),
-                ),
-
-                const SizedBox(height: 12),
-
-                _buildSliderCard(
-                  label: 'Buying Costs (legal, survey, etc.)',
-                  value: _buyingCosts,
-                  min: 1000,
-                  max: 10000,
-                  divisions: 18,
-                  valueFormatter: (v) => '£${v.toStringAsFixed(0)}',
-                  onChanged: (v) => setState(() => _buyingCosts = v),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Detailed breakdown
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Detailed Breakdown',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 20),
-
-                        _buildBreakdownRow(
-                          'Total Rent Cost',
-                          '£${results['totalRentCost'].toStringAsFixed(0)}',
-                          AppTheme.warning,
-                        ),
-                        const Divider(height: 24),
-
-                        _buildBreakdownRow(
-                          'Total Buy Cost',
-                          '£${results['totalBuyCost'].toStringAsFixed(0)}',
-                          AppTheme.accentGreen,
-                        ),
-                        const Divider(height: 24),
-
-                        _buildBreakdownRow(
-                          'Opportunity Cost (foregone investment)',
-                          '£${results['opportunityCost'].toStringAsFixed(0)}',
-                          AppTheme.accentOrange,
-                        ),
-                        const Divider(height: 24),
-
-                        _buildBreakdownRow(
-                          'Equity Gained (property appreciation)',
-                          '£${results['equityGained'].toStringAsFixed(0)}',
-                          AppTheme.primaryBlue,
-                        ),
-                        const Divider(height: 24),
-
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryBlue.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: [
-                              _buildBreakdownRow(
-                                'Future Property Value',
-                                '£${results['futurePropertyValue'].toStringAsFixed(0)}',
-                                AppTheme.primaryBlue,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  List<FlSpot> _generateSpots(List<double> yearly) {
-    double cumulative = 0;
-    return List.generate(yearly.length, (index) {
-      cumulative += yearly[index];
-      return FlSpot(index.toDouble() + 1, cumulative);
-    });
-  }
-
-  Widget _buildLegend(String label, Color color) {
-    return Row(
-      children: [
-        Container(width: 20, height: 3, color: color),
-        const SizedBox(width: 8),
-        Text(label),
-      ],
-    );
-  }
-
-  Widget _buildBreakdownRow(String label, String value, Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(label, style: TextStyle(color: AppTheme.textSecondary)),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: color,
-            fontSize: 16,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSliderCard({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String Function(double) valueFormatter,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Text(
-                  valueFormatter(value),
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryBlue,
-                  ),
-                ),
-              ],
-            ),
-            Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
-              activeColor: AppTheme.primaryBlue,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

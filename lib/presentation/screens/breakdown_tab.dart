@@ -20,7 +20,7 @@ class _BreakdownTabState extends State<BreakdownTab> {
   int _selectedSegment = 0;
 
   // Overpayment state
-  String _overpayType = 'None';
+  String _overpayType = 'Monthly';
   double _monthlyOverpay = 200;
   double _lumpSumOverpay = 10000;
   int _lumpSumMonth = 12;
@@ -122,20 +122,20 @@ class _BreakdownTabState extends State<BreakdownTab> {
         },
         style: ButtonStyle(
           visualDensity: VisualDensity.compact,
-          padding: MaterialStateProperty.all(
+          padding: WidgetStateProperty.all(
             const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
-          shape: MaterialStateProperty.all(
+          shape: WidgetStateProperty.all(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryBlue.withValues(alpha: 0.12);
             }
             return Colors.transparent;
           }),
-          foregroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryBlue;
             }
             return AppTheme.textSecondary;
@@ -410,23 +410,19 @@ class _BreakdownTabState extends State<BreakdownTab> {
 
   // Overpayment Section
   Widget _buildOverpaySection(calc, baseSchedule) {
-    Map<String, dynamic>? comparison;
+    final overpaySchedule = MortgageCalculator.generateAmortisationSchedule(
+      loanAmount: calc.loanAmount,
+      annualInterestRate: widget.scenario.interestRate,
+      termYears: widget.scenario.termYears,
+      monthlyOverpay: _overpayType == 'Monthly' ? _monthlyOverpay : 0,
+      lumpSumOverpay: _overpayType == 'Lump Sum' ? _lumpSumOverpay : 0,
+      lumpSumMonth: _overpayType == 'Lump Sum' ? _lumpSumMonth : 0,
+    );
 
-    if (_overpayType != 'None') {
-      final overpaySchedule = MortgageCalculator.generateAmortisationSchedule(
-        loanAmount: calc.loanAmount,
-        annualInterestRate: widget.scenario.interestRate,
-        termYears: widget.scenario.termYears,
-        monthlyOverpay: _overpayType == 'Monthly' ? _monthlyOverpay : 0,
-        lumpSumOverpay: _overpayType == 'Lump Sum' ? _lumpSumOverpay : 0,
-        lumpSumMonth: _overpayType == 'Lump Sum' ? _lumpSumMonth : 0,
-      );
-
-      comparison = MortgageCalculator.compareOverpay(
-        baselineSchedule: baseSchedule,
-        overpaySchedule: overpaySchedule,
-      );
-    }
+    final comparison = MortgageCalculator.compareOverpay(
+      baselineSchedule: baseSchedule,
+      overpaySchedule: overpaySchedule,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,7 +457,6 @@ class _BreakdownTabState extends State<BreakdownTab> {
                 child: SegmentedButton<String>(
                   showSelectedIcon: false,
                   segments: const [
-                    ButtonSegment(value: 'None', label: Text('None')),
                     ButtonSegment(value: 'Monthly', label: Text('Monthly')),
                     ButtonSegment(value: 'Lump Sum', label: Text('Lump Sum')),
                   ],
@@ -471,10 +466,10 @@ class _BreakdownTabState extends State<BreakdownTab> {
                   },
                   style: ButtonStyle(
                     visualDensity: VisualDensity.compact,
-                    backgroundColor: MaterialStateProperty.resolveWith((
+                    backgroundColor: WidgetStateProperty.resolveWith((
                       states,
                     ) {
-                      if (states.contains(MaterialState.selected)) {
+                      if (states.contains(WidgetState.selected)) {
                         return AppTheme.accentGreen.withValues(alpha: 0.12);
                       }
                       return Colors.transparent;
@@ -488,23 +483,8 @@ class _BreakdownTabState extends State<BreakdownTab> {
               SizedBox(
                 height: 160,
                 child: IndexedStack(
-                  index: _overpayType == 'None'
-                      ? 0
-                      : _overpayType == 'Monthly'
-                      ? 1
-                      : 2,
+                  index: _overpayType == 'Monthly' ? 0 : 1,
                   children: [
-                    // None - empty placeholder
-                    Center(
-                      child: Text(
-                        'Select a payment type above to\ncalculate your savings',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
-                    ),
                     // Monthly
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -546,7 +526,7 @@ class _BreakdownTabState extends State<BreakdownTab> {
                           onChanged: (v) => setState(() => _lumpSumOverpay = v),
                         ),
                         Text(
-                          'Month to pay: ${_lumpSumMonth}',
+                          'Month to pay: $_lumpSumMonth',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -571,53 +551,30 @@ class _BreakdownTabState extends State<BreakdownTab> {
 
               // Results area - always same height, shows placeholder when no comparison
               SizedBox(
-                height: 160,
-                child: comparison != null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildMetric(
-                            'Interest Saved',
-                            '£${comparison['interestSaved'].toStringAsFixed(0)}',
-                            Icons.trending_down,
-                            AppTheme.accentGreen,
-                          ),
-                          const Divider(height: 1),
-                          _buildMetric(
-                            'Time Saved',
-                            '${comparison['yearsSaved'].toStringAsFixed(0)} years',
-                            Icons.access_time,
-                            AppTheme.primaryBlue,
-                          ),
-                          const Divider(height: 1),
-                          _buildMetric(
-                            'Months Saved',
-                            '${comparison['monthsSaved']} months',
-                            Icons.calendar_today,
-                            AppTheme.accentOrange,
-                          ),
-                        ],
-                      )
-                    : Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.calculate_outlined,
-                              size: 36,
-                              color: AppTheme.textTertiary,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Savings will appear here',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppTheme.textTertiary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                height: 180,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildMetric(
+                      'Interest Saved',
+                      '£${comparison['interestSaved'].toStringAsFixed(0)}',
+                      Icons.trending_down,
+                      AppTheme.accentGreen,
+                    ),
+                    _buildMetric(
+                      'Time Saved',
+                      '${comparison['yearsSaved'].toStringAsFixed(0)} years',
+                      Icons.access_time,
+                      AppTheme.primaryBlue,
+                    ),
+                    _buildMetric(
+                      'Months Saved',
+                      '${comparison['monthsSaved']} months',
+                      Icons.calendar_today,
+                      AppTheme.accentOrange,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

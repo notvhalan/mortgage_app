@@ -57,14 +57,14 @@ class _MortgageGraphState extends State<MortgageGraph> {
         onSelectionChanged: (s) => setState(() => _selectedView = s.first),
         style: ButtonStyle(
           visualDensity: VisualDensity.compact,
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryBlue.withValues(alpha: 0.12);
             }
             return Colors.transparent;
           }),
-          foregroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return AppTheme.primaryBlue;
             }
             return AppTheme.textSecondary;
@@ -428,8 +428,8 @@ class _AmortisationTableState extends State<AmortisationTable> {
             },
             style: ButtonStyle(
               visualDensity: VisualDensity.compact,
-              backgroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
                   return AppTheme.primaryBlue.withValues(alpha: 0.12);
                 }
                 return Colors.transparent;

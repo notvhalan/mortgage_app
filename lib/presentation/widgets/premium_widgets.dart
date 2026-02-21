@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
-import 'dart:math' as math;
 
 /// Premium hero card for displaying monthly payment summary
 class HeroSummaryCard extends StatelessWidget {
