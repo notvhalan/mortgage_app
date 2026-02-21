@@ -137,7 +137,8 @@ class _InputSliderState extends State<InputSlider> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
 
-  String _rawValue(double v) => widget.valueFormatter(v)
+  String _rawValue(double v) => widget
+      .valueFormatter(v)
       .replaceAll('£', '')
       .replaceAll('%', '')
       .replaceAll(' years', '');
@@ -193,10 +194,9 @@ class _InputSliderState extends State<InputSlider> {
               children: [
                 Text(
                   widget.label,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(fontWeight: FontWeight.w500),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 if (widget.showTextField)
                   SizedBox(

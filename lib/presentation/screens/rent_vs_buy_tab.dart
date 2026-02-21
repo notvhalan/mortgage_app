@@ -784,7 +784,7 @@ class _RentVsBuyTabState extends State<RentVsBuyTab> {
     );
   }
 }
-          final calc = widget.scenario.calculation;
+
 
           if (calc == null) {
             return const Center(child: CircularProgressIndicator());

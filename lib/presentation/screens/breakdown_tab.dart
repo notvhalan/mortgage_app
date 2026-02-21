@@ -95,10 +95,7 @@ class _BreakdownTabState extends State<BreakdownTab> {
         const SizedBox(height: 4),
         Text(
           'Updates instantly from your calculator',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppTheme.textSecondary,
-          ),
+          style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
         ),
       ],
     );
@@ -114,22 +111,10 @@ class _BreakdownTabState extends State<BreakdownTab> {
       child: SegmentedButton<int>(
         showSelectedIcon: false,
         segments: const [
-          ButtonSegment(
-            value: 0,
-            label: Text('Graph'),
-          ),
-          ButtonSegment(
-            value: 1,
-            label: Text('Table'),
-          ),
-          ButtonSegment(
-            value: 2,
-            label: Text('Overpay'),
-          ),
-          ButtonSegment(
-            value: 3,
-            label: Text('Tools'),
-          ),
+          ButtonSegment(value: 0, label: Text('Graph')),
+          ButtonSegment(value: 1, label: Text('Table')),
+          ButtonSegment(value: 2, label: Text('Overpay')),
+          ButtonSegment(value: 3, label: Text('Tools')),
         ],
         selected: {_selectedSegment},
         onSelectionChanged: (Set<int> newSelection) {
@@ -141,9 +126,7 @@ class _BreakdownTabState extends State<BreakdownTab> {
             const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
           shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           backgroundColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.selected)) {
@@ -168,10 +151,10 @@ class _BreakdownTabState extends State<BreakdownTab> {
       child: _selectedSegment == 0
           ? _buildGraphView(schedule, calc)
           : _selectedSegment == 1
-              ? _buildTableView(schedule)
-              : _selectedSegment == 2
-                  ? _buildOverpaySection(calc, schedule)
-                  : _buildToolsSection(calc),
+          ? _buildTableView(schedule)
+          : _selectedSegment == 2
+          ? _buildOverpaySection(calc, schedule)
+          : _buildToolsSection(calc),
     );
   }
 
@@ -333,27 +316,31 @@ class _BreakdownTabState extends State<BreakdownTab> {
           const SizedBox(height: 12),
           Text(
             'See how rate changes affect your monthly payment',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.textSecondary,
-            ),
+            style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
           ),
           const SizedBox(height: 20),
-          ...stressTest.entries.map((e) => _buildStressTestRow(
-            '${e.key.toStringAsFixed(1)}%',
-            '£${e.value.toStringAsFixed(0)}/mo',
-            e.key,
-            widget.scenario.interestRate,
-          )),
+          ...stressTest.entries.map(
+            (e) => _buildStressTestRow(
+              '${e.key.toStringAsFixed(1)}%',
+              '£${e.value.toStringAsFixed(0)}/mo',
+              e.key,
+              widget.scenario.interestRate,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStressTestRow(String rate, String payment, double testRate, double currentRate) {
+  Widget _buildStressTestRow(
+    String rate,
+    String payment,
+    double testRate,
+    double currentRate,
+  ) {
     final isHigher = testRate > currentRate;
     final isCurrent = (testRate - currentRate).abs() < 0.01;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -365,16 +352,18 @@ class _BreakdownTabState extends State<BreakdownTab> {
                 width: 60,
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isCurrent 
-                    ? AppTheme.primaryBlue.withValues(alpha: 0.1)
-                    : AppTheme.surfaceLight,
+                  color: isCurrent
+                      ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                      : AppTheme.surfaceLight,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   rate,
                   style: TextStyle(
                     fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
-                    color: isCurrent ? AppTheme.primaryBlue : AppTheme.textPrimary,
+                    color: isCurrent
+                        ? AppTheme.primaryBlue
+                        : AppTheme.textPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -382,7 +371,10 @@ class _BreakdownTabState extends State<BreakdownTab> {
               if (isCurrent) ...[
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.primaryBlue,
                     borderRadius: BorderRadius.circular(6),
@@ -404,10 +396,10 @@ class _BreakdownTabState extends State<BreakdownTab> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: isCurrent 
-                ? AppTheme.primaryBlue
-                : isHigher 
-                  ? AppTheme.accentOrange 
+              color: isCurrent
+                  ? AppTheme.primaryBlue
+                  : isHigher
+                  ? AppTheme.accentOrange
                   : AppTheme.accentGreen,
             ),
           ),
@@ -479,7 +471,9 @@ class _BreakdownTabState extends State<BreakdownTab> {
                   },
                   style: ButtonStyle(
                     visualDensity: VisualDensity.compact,
-                    backgroundColor: MaterialStateProperty.resolveWith((states) {
+                    backgroundColor: MaterialStateProperty.resolveWith((
+                      states,
+                    ) {
                       if (states.contains(MaterialState.selected)) {
                         return AppTheme.accentGreen.withValues(alpha: 0.12);
                       }
@@ -494,7 +488,11 @@ class _BreakdownTabState extends State<BreakdownTab> {
               SizedBox(
                 height: 160,
                 child: IndexedStack(
-                  index: _overpayType == 'None' ? 0 : _overpayType == 'Monthly' ? 1 : 2,
+                  index: _overpayType == 'None'
+                      ? 0
+                      : _overpayType == 'Monthly'
+                      ? 1
+                      : 2,
                   children: [
                     // None - empty placeholder
                     Center(
@@ -560,7 +558,8 @@ class _BreakdownTabState extends State<BreakdownTab> {
                           min: 1,
                           max: 60,
                           divisions: 59,
-                          onChanged: (v) => setState(() => _lumpSumMonth = v.toInt()),
+                          onChanged: (v) =>
+                              setState(() => _lumpSumMonth = v.toInt()),
                         ),
                       ],
                     ),
@@ -603,7 +602,11 @@ class _BreakdownTabState extends State<BreakdownTab> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.calculate_outlined, size: 36, color: AppTheme.textTertiary),
+                            Icon(
+                              Icons.calculate_outlined,
+                              size: 36,
+                              color: AppTheme.textTertiary,
+                            ),
                             const SizedBox(height: 8),
                             Text(
                               'Savings will appear here',
@@ -650,7 +653,11 @@ class _BreakdownTabState extends State<BreakdownTab> {
         children: [
           Row(
             children: [
-              Icon(Icons.account_balance_wallet, size: 20, color: AppTheme.primaryBlue),
+              Icon(
+                Icons.account_balance_wallet,
+                size: 20,
+                color: AppTheme.primaryBlue,
+              ),
               const SizedBox(width: 8),
               Text(
                 'Affordability Calculator',
@@ -863,10 +870,7 @@ class _BreakdownTabState extends State<BreakdownTab> {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
               ),
               Text(
                 value,

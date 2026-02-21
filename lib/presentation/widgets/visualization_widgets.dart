@@ -24,14 +24,14 @@ class _MortgageGraphState extends State<MortgageGraph> {
         const SizedBox(height: 20),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: child,
-          ),
+          transitionBuilder: (child, animation) =>
+              FadeTransition(opacity: animation, child: child),
           child: SizedBox(
             key: ValueKey(_selectedView),
             height: 240,
-            child: _selectedView == 0 ? _buildBalanceChart() : _buildStackedChart(),
+            child: _selectedView == 0
+                ? _buildBalanceChart()
+                : _buildStackedChart(),
           ),
         ),
         const SizedBox(height: 16),
@@ -85,7 +85,9 @@ class _MortgageGraphState extends State<MortgageGraph> {
       ...yearlyRows.map((r) => FlSpot(r.month / 12, r.balance)),
     ];
 
-    final yInterval = initialBalance > 0 ? (initialBalance / 4).ceilToDouble() : 50000.0;
+    final yInterval = initialBalance > 0
+        ? (initialBalance / 4).ceilToDouble()
+        : 50000.0;
 
     return LineChart(
       LineChartData(
@@ -94,7 +96,10 @@ class _MortgageGraphState extends State<MortgageGraph> {
           touchTooltipData: LineTouchTooltipData(
             getTooltipColor: (_) => AppTheme.primaryBlue,
             tooltipRoundedRadius: 10,
-            tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            tooltipPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
             getTooltipItems: (spots) => spots.map((spot) {
               return LineTooltipItem(
                 'Year ${spot.x.toInt()}\n£${(spot.y / 1000).toStringAsFixed(0)}k remaining',
@@ -163,8 +168,12 @@ class _MortgageGraphState extends State<MortgageGraph> {
               },
             ),
           ),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: false),
         lineBarsData: [
@@ -203,7 +212,9 @@ class _MortgageGraphState extends State<MortgageGraph> {
         .toList();
 
     final allVals = [...principalData, ...interestData].map((s) => s.y);
-    final maxY = allVals.isNotEmpty ? allVals.reduce((a, b) => a > b ? a : b) : 2000.0;
+    final maxY = allVals.isNotEmpty
+        ? allVals.reduce((a, b) => a > b ? a : b)
+        : 2000.0;
     final yInterval = maxY > 0 ? (maxY / 4).ceilToDouble() : 500.0;
 
     return LineChart(
@@ -211,10 +222,14 @@ class _MortgageGraphState extends State<MortgageGraph> {
         lineTouchData: LineTouchData(
           handleBuiltInTouches: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (spot) =>
-                spot.barIndex == 0 ? AppTheme.graphPrincipal : AppTheme.graphInterest,
+            getTooltipColor: (spot) => spot.barIndex == 0
+                ? AppTheme.graphPrincipal
+                : AppTheme.graphInterest,
             tooltipRoundedRadius: 10,
-            tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            tooltipPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
             getTooltipItems: (spots) => spots.map((spot) {
               final label = spot.barIndex == 0 ? 'Principal' : 'Interest';
               return LineTooltipItem(
@@ -284,8 +299,12 @@ class _MortgageGraphState extends State<MortgageGraph> {
               },
             ),
           ),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: false),
         lineBarsData: [
@@ -496,99 +515,107 @@ class _AmortisationTableState extends State<AmortisationTable> {
           height: 500,
           decoration: BoxDecoration(
             border: Border.all(color: AppTheme.borderLight, width: 1),
-            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(12),
+            ),
           ),
           child: ListView.builder(
             itemCount: displayData.length,
             itemBuilder: (context, index) {
-                final row = displayData[index];
-                final isEven = index % 2 == 0;
-                
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: isEven 
+              final row = displayData[index];
+              final isEven = index % 2 == 0;
+
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: isEven
                       ? AppTheme.backgroundWhite
                       : AppTheme.surfaceLight,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: AppTheme.borderLight.withValues(alpha: 0.5),
-                        width: 0.5,
-                      ),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppTheme.borderLight.withValues(alpha: 0.5),
+                      width: 0.5,
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryBlue.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '${row.month}',
-                            style: TextStyle(
-                              fontWeight: AppTheme.fontWeightMedium,
-                              fontSize: 13,
-                              color: AppTheme.primaryBlue,
-                            ),
-                          ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          '£${row.payment.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontFeatures: [FontFeature.tabularFigures()],
-                          ),
-                          textAlign: TextAlign.right,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(6),
                         ),
-                      ),
-                      Expanded(
-                        flex: 3,
                         child: Text(
-                          '£${row.interest.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontFeatures: [FontFeature.tabularFigures()],
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          '£${row.principal.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontFeatures: [FontFeature.tabularFigures()],
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          '£${row.balance.toStringAsFixed(0)}',
+                          '${row.month}',
                           style: TextStyle(
-                            fontSize: 13,
                             fontWeight: AppTheme.fontWeightMedium,
+                            fontSize: 13,
                             color: AppTheme.primaryBlue,
-                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
-                          textAlign: TextAlign.right,
                         ),
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        '£${row.payment.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        '£${row.interest.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        '£${row.principal.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        '£${row.balance.toStringAsFixed(0)}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: AppTheme.fontWeightMedium,
+                          color: AppTheme.primaryBlue,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
+        ),
       ],
     );
   }
