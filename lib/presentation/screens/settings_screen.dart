@@ -1,53 +1,49 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_theme.dart';
 import '../../domain/services/settings_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ValueChanged<bool>? onThemeChanged;
-  
-  const SettingsScreen({
-    super.key,
-    this.onThemeChanged,
-  });
-  
+
+  const SettingsScreen({super.key, this.onThemeChanged});
+
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final SettingsService _settingsService = SettingsService();
-  
+
   String _defaultRegion = 'England/NI';
   int _defaultTerm = 25;
   bool _darkMode = false;
-  
+
   @override
   void initState() {
     super.initState();
     _loadSettings();
   }
-  
+
   Future<void> _loadSettings() async {
     final region = await _settingsService.getDefaultRegion();
     final term = await _settingsService.getDefaultTerm();
     final darkMode = await _settingsService.getDarkMode();
-    
+
     setState(() {
       _defaultRegion = region;
       _defaultTerm = term;
       _darkMode = darkMode;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
           const SizedBox(height: 8),
-          
+
           // Default Region
           Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -58,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () => _showRegionPicker(),
             ),
           ),
-          
+
           // Default Term
           Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -69,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () => _showTermPicker(),
             ),
           ),
-          
+
           // Dark Mode
           Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -84,26 +80,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Reset Button
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.cardPadding,
+            ),
             child: OutlinedButton.icon(
               icon: const Icon(Icons.refresh),
               label: const Text('Reset to Defaults'),
               onPressed: () => _showResetDialog(),
             ),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Disclaimer
           Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            margin: const EdgeInsets.symmetric(
+              horizontal: AppTheme.cardPadding,
+              vertical: AppTheme.spacingSmall,
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppTheme.cardPadding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -123,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-          
+
           // Version
           Padding(
             padding: const EdgeInsets.all(16),
@@ -138,7 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
   void _showRegionPicker() {
     showDialog(
       context: context,
@@ -194,10 +195,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
   void _showTermPicker() {
     int selectedTerm = _defaultTerm;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -239,7 +240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
   void _showResetDialog() {
     showDialog(
       context: context,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
 class SummaryCard extends StatelessWidget {
+  final double propertyPrice;
   final double monthlyPayment;
   final double loanAmount;
   final double stampDuty;
@@ -9,6 +10,7 @@ class SummaryCard extends StatelessWidget {
 
   const SummaryCard({
     super.key,
+    required this.propertyPrice,
     required this.monthlyPayment,
     required this.loanAmount,
     required this.stampDuty,
@@ -24,19 +26,27 @@ class SummaryCard extends StatelessWidget {
           children: [
             Text(
               'Monthly Payment',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '£${monthlyPayment.toStringAsFixed(0)}',
               style: Theme.of(
                 context,
-              ).textTheme.displayMedium?.copyWith(color: AppTheme.primaryBlue),
+              ).textTheme.titleMedium?.copyWith(color: AppTheme.textSecondary),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppTheme.spacingSmall),
+            Text(
+              '£${monthlyPayment.toStringAsFixed(0)}',
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                color: AppTheme.primaryBlue,
+                fontWeight: AppTheme.fontWeightBold,
+              ),
+            ),
+            const SizedBox(height: AppTheme.spacingLarge),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                _buildInfoColumn(
+                  context,
+                  'Property Price',
+                  '£${_formatNumber(propertyPrice)}',
+                ),
                 _buildInfoColumn(
                   context,
                   'Loan',
@@ -69,13 +79,18 @@ class SummaryCard extends StatelessWidget {
   }) {
     return Column(
       children: [
-        Text(label, style: Theme.of(context).textTheme.labelMedium),
-        const SizedBox(height: 4),
+        Text(
+          label,
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(color: AppTheme.textSecondary),
+        ),
+        const SizedBox(height: AppTheme.spacingXSmall),
         Text(
           value,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: color,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: AppTheme.fontWeightSemiBold,
+            color: color ?? AppTheme.textPrimary,
           ),
         ),
       ],
@@ -92,7 +107,7 @@ class SummaryCard extends StatelessWidget {
   }
 }
 
-class InputSlider extends StatelessWidget {
+class InputSlider extends StatefulWidget {
   final String label;
   final double value;
   final double min;
@@ -115,6 +130,57 @@ class InputSlider extends StatelessWidget {
   });
 
   @override
+  State<InputSlider> createState() => _InputSliderState();
+}
+
+class _InputSliderState extends State<InputSlider> {
+  late TextEditingController _controller;
+  late FocusNode _focusNode;
+
+  String _rawValue(double v) => widget.valueFormatter(v)
+      .replaceAll('£', '')
+      .replaceAll('%', '')
+      .replaceAll(' years', '');
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: _rawValue(widget.value));
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) _handleSubmit(_controller.text);
+    });
+  }
+
+  @override
+  void didUpdateWidget(InputSlider oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync text field when slider moves (but not while user is typing)
+    if (oldWidget.value != widget.value && !_focusNode.hasFocus) {
+      _controller.text = _rawValue(widget.value);
+    }
+  }
+
+  void _handleSubmit(String val) {
+    final parsed = double.tryParse(val.trim());
+    if (parsed != null) {
+      final clamped = parsed.clamp(widget.min, widget.max);
+      widget.onChanged(clamped);
+      _controller.text = _rawValue(clamped);
+    } else {
+      // Reset to current valid value
+      _controller.text = _rawValue(widget.value);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
@@ -126,21 +192,18 @@ class InputSlider extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                  widget.label,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w500),
                 ),
-                if (showTextField)
+                if (widget.showTextField)
                   SizedBox(
                     width: 120,
                     child: TextField(
-                      controller: TextEditingController(
-                        text: valueFormatter(value)
-                            .replaceAll('£', '')
-                            .replaceAll('%', '')
-                            .replaceAll(' years', ''),
-                      ),
+                      controller: _controller,
+                      focusNode: _focusNode,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -157,17 +220,12 @@ class InputSlider extends StatelessWidget {
                         ),
                         border: OutlineInputBorder(),
                       ),
-                      onSubmitted: (val) {
-                        final parsed = double.tryParse(val);
-                        if (parsed != null && parsed >= min && parsed <= max) {
-                          onChanged(parsed);
-                        }
-                      },
+                      onSubmitted: _handleSubmit,
                     ),
                   )
                 else
                   Text(
-                    valueFormatter(value),
+                    widget.valueFormatter(widget.value),
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: AppTheme.primaryBlue,
@@ -176,11 +234,11 @@ class InputSlider extends StatelessWidget {
               ],
             ),
             Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
+              value: widget.value,
+              min: widget.min,
+              max: widget.max,
+              divisions: widget.divisions,
+              onChanged: widget.onChanged,
               activeColor: AppTheme.primaryBlue,
             ),
           ],

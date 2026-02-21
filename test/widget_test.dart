@@ -16,27 +16,26 @@ void main() {
         annualInterestRate: 4.5,
         termYears: 25,
       );
-      
+
       expect(payment, closeTo(1333.58, 1.0));
     });
-    
+
     test('Calculate LTV correctly', () {
       final ltv = MortgageCalculator.calculateLTV(
         propertyPrice: 300000,
         deposit: 60000,
       );
-      
+
       expect(ltv, equals(80.0));
     });
-    
+
     test('Calculate stamp duty for England/NI', () {
       final stampDuty = MortgageCalculator.calculateStampDuty(
         propertyPrice: 300000,
         region: 'England/NI',
       );
-      
+
       expect(stampDuty, equals(2500.0));
     });
   });
 }
-

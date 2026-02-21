@@ -161,6 +161,9 @@ class MortgageCalculator {
     required double loanAmount,
     required double annualInterestRate,
     required int termYears,
+    double monthlyOverpay = 0,
+    double lumpSumOverpay = 0,
+    int lumpSumMonth = 0,
   }) {
     final List<AmortisationRow> schedule = [];
     final monthlyPayment = calculateMonthlyPayment(
@@ -173,8 +176,17 @@ class MortgageCalculator {
     double balance = loanAmount;
 
     for (int month = 1; month <= termYears * 12; month++) {
+      if (balance <= 0) break;
+
       final interest = balance * monthlyRate;
-      final principal = monthlyPayment - interest;
+      double payment = monthlyPayment + monthlyOverpay;
+
+      // Apply lump sum overpayment if this is the specified month
+      if (lumpSumMonth > 0 && month == lumpSumMonth) {
+        payment += lumpSumOverpay;
+      }
+
+      final principal = payment - interest;
       balance -= principal;
 
       // Avoid negative balance due to rounding
@@ -183,7 +195,7 @@ class MortgageCalculator {
       schedule.add(
         AmortisationRow(
           month: month,
-          payment: monthlyPayment,
+          payment: payment,
           interest: interest,
           principal: principal,
           balance: balance,
@@ -192,6 +204,55 @@ class MortgageCalculator {
     }
 
     return schedule;
+  }
+
+  /// Compare baseline schedule vs overpayment schedule
+  static Map<String, dynamic> compareOverpay({
+    required List<AmortisationRow> baselineSchedule,
+    required List<AmortisationRow> overpaySchedule,
+  }) {
+    final baselineTotalInterest = baselineSchedule.fold<double>(
+      0,
+      (sum, row) => sum + row.interest,
+    );
+    final overpayTotalInterest = overpaySchedule.fold<double>(
+      0,
+      (sum, row) => sum + row.interest,
+    );
+
+    final interestSaved = baselineTotalInterest - overpayTotalInterest;
+    final monthsSaved = baselineSchedule.length - overpaySchedule.length;
+    final yearsSaved = monthsSaved / 12;
+
+    return {
+      'interestSaved': interestSaved,
+      'monthsSaved': monthsSaved,
+      'yearsSaved': yearsSaved,
+      'overpayTotalInterest': overpayTotalInterest,
+      'baselineTotalInterest': baselineTotalInterest,
+    };
+  }
+
+  /// Stress test monthly payments at different interest rates
+  static Map<double, double> stressTestRates({
+    required double loanAmount,
+    required double baseRate,
+    required int termYears,
+    List<double> rateDeltas = const [0, 0.5, 1.0, 2.0, 3.0],
+  }) {
+    final Map<double, double> results = {};
+
+    for (final delta in rateDeltas) {
+      final testRate = baseRate + delta;
+      final payment = calculateMonthlyPayment(
+        loanAmount: loanAmount,
+        annualInterestRate: testRate,
+        termYears: termYears,
+      );
+      results[testRate] = payment;
+    }
+
+    return results;
   }
 
   /// Generate yearly summary from amortisation schedule

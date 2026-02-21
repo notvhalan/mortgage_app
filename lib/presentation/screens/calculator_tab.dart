@@ -1,123 +1,158 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/services/mortgage_scenario.dart';
-import '../widgets/calculator_widgets.dart';
+import '../widgets/premium_widgets.dart';
 
 class CalculatorTab extends StatelessWidget {
   final MortgageScenario scenario;
   final VoidCallback? onViewBreakdown;
-  
+
   const CalculatorTab({
     super.key,
     required this.scenario,
     this.onViewBreakdown,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FA),
       appBar: AppBar(
         title: const Text('Calculator'),
+        backgroundColor: const Color(0xFFF7F8FA),
+        elevation: 0,
       ),
       body: ListenableBuilder(
         listenable: scenario,
         builder: (context, _) {
           final calc = scenario.calculation;
-          
+
           if (calc == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // Summary Card
-                SummaryCard(
+                // Hero Summary Card
+                HeroSummaryCard(
                   monthlyPayment: calc.monthlyPayment,
                   loanAmount: calc.loanAmount,
                   stampDuty: calc.stampDuty,
                   ltv: calc.ltv,
                 ),
-                
-                const SizedBox(height: AppTheme.sectionSpacing),
-                
-                // Input Controls
-                InputSlider(
-                  label: 'Property Price',
-                  value: scenario.propertyPrice,
+
+                const SizedBox(height: 14),
+
+                // Property Price Control
+                ControlCard(
+                  title: 'Property Price',
+                  subtitle: 'Total purchase price',
+                  value: '£${scenario.propertyPrice.toStringAsFixed(0)}',
+                  sliderValue: scenario.propertyPrice,
                   min: 50000,
                   max: 2000000,
                   divisions: 1950,
-                  valueFormatter: (v) => '£${v.toStringAsFixed(0)}',
+                  minLabel: '£50k',
+                  maxLabel: '£2M',
                   onChanged: scenario.updatePropertyPrice,
                 ),
-                
-                const SizedBox(height: 12),
-                
-                InputSlider(
-                  label: 'Deposit',
-                  value: scenario.depositPercentage,
+
+                const SizedBox(height: 10),
+
+                // Deposit Control
+                ControlCard(
+                  title: 'Deposit',
+                  subtitle: 'Affects your LTV ratio',
+                  value: '${scenario.depositPercentage.toStringAsFixed(0)}%',
+                  sliderValue: scenario.depositPercentage,
                   min: 5,
                   max: 50,
                   divisions: 45,
-                  valueFormatter: (v) => '${v.toStringAsFixed(0)}%',
+                  minLabel: '5%',
+                  maxLabel: '50%',
                   onChanged: scenario.updateDepositPercentage,
                 ),
-                
-                const SizedBox(height: 12),
-                
-                InputSlider(
-                  label: 'Interest Rate',
-                  value: scenario.interestRate,
+
+                const SizedBox(height: 10),
+
+                // Interest Rate Control
+                ControlCard(
+                  title: 'Interest Rate',
+                  subtitle: 'Annual interest rate',
+                  value: '${scenario.interestRate.toStringAsFixed(2)}%',
+                  sliderValue: scenario.interestRate,
                   min: 1,
                   max: 8,
                   divisions: 70,
-                  valueFormatter: (v) => '${v.toStringAsFixed(1)}%',
+                  minLabel: '1%',
+                  maxLabel: '8%',
                   onChanged: scenario.updateInterestRate,
                 ),
-                
-                const SizedBox(height: 12),
-                
-                InputSlider(
-                  label: 'Term',
-                  value: scenario.termYears.toDouble(),
+
+                const SizedBox(height: 10),
+
+                // Mortgage Term Control
+                ControlCard(
+                  title: 'Mortgage Term',
+                  subtitle: 'Length of mortgage',
+                  value: '${scenario.termYears.toStringAsFixed(0)} years',
+                  sliderValue: scenario.termYears.toDouble(),
                   min: 5,
-                  max: 40,
-                  divisions: 35,
-                  valueFormatter: (v) => '${v.toStringAsFixed(0)} years',
+                  max: 35,
+                  divisions: 30,
+                  minLabel: '5 years',
+                  maxLabel: '35 years',
                   onChanged: (v) => scenario.updateTermYears(v.toInt()),
                 ),
-                
-                const SizedBox(height: 12),
-                
-                RegionSelector(
-                  selectedRegion: scenario.region,
-                  onChanged: scenario.updateRegion,
+
+                const SizedBox(height: 10),
+
+                // Region Selector
+                PremiumRegionSelector(
+                  value: scenario.region,
+                  onChanged: (v) => scenario.updateRegion(v!),
                 ),
-                
-                const SizedBox(height: AppTheme.sectionSpacing),
-                
-                // Quick Actions
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Reset'),
-                        onPressed: scenario.resetToDefaults,
+
+                const SizedBox(height: 14),
+
+                // View Breakdown Button
+                if (onViewBreakdown != null)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: onViewBreakdown,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryBlue,
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        shadowColor: AppTheme.primaryBlue.withValues(
+                          alpha: 0.3,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'View Detailed Breakdown',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward_rounded, size: 20),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton.icon(
-                        icon: const Icon(Icons.bar_chart),
-                        label: const Text('View Breakdown'),
-                        onPressed: onViewBreakdown,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+
+                const SizedBox(height: 20),
               ],
             ),
           );

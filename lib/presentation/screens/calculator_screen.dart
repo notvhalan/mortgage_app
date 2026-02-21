@@ -60,6 +60,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 children: [
                   // Summary Card
                   SummaryCard(
+                    propertyPrice: propertyPrice,
                     monthlyPayment: calculation!.monthlyPayment,
                     loanAmount: calculation!.loanAmount,
                     stampDuty: calculation!.stampDuty,
@@ -139,32 +140,109 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
                   const SizedBox(height: AppTheme.sectionSpacing),
 
-                  // Visualization Section
-                  DefaultTabController(
-                    length: 2,
-                    child: Column(
+                  // Visualization Section - 2x2 Grid
+                  Container(
+                    height: 600,
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 0.9,
+                      physics: const NeverScrollableScrollPhysics(),
                       children: [
-                        const TabBar(
-                          tabs: [
-                            Tab(text: 'Graph'),
-                            Tab(text: 'Table'),
-                          ],
+                        // Graph
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Graph',
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(
+                                        fontWeight: AppTheme.fontWeightSemiBold,
+                                      ),
+                                ),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: MortgageGraph(
+                                    schedule: amortisationSchedule!,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        SizedBox(
-                          height: 500,
-                          child: TabBarView(
-                            children: [
-                              Card(
-                                child: MortgageGraph(
-                                  schedule: amortisationSchedule!,
+
+                        // Table
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Table',
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(
+                                        fontWeight: AppTheme.fontWeightSemiBold,
+                                      ),
                                 ),
-                              ),
-                              Card(
-                                child: AmortisationTable(
-                                  schedule: amortisationSchedule!,
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: AmortisationTable(
+                                    schedule: amortisationSchedule!,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Placeholder for future features (bottom-left)
+                        Card(
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.analytics,
+                                  size: 48,
+                                  color: AppTheme.textTertiary,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Coming Soon',
+                                  style: TextStyle(
+                                    color: AppTheme.textSecondary,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Placeholder for future features (bottom-right)
+                        Card(
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.pie_chart,
+                                  size: 48,
+                                  color: AppTheme.textTertiary,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Coming Soon',
+                                  style: TextStyle(
+                                    color: AppTheme.textSecondary,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
